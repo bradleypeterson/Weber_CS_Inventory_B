@@ -1,0 +1,35 @@
+School of Computing Asset Manager (SCAM) Requirements
+
+Link to deployed: http://timetracker.users.weber.edu/inventory/login 
+
+1 - Highest Priority, 2 - Desired Features, 3 - Additional Features
+		
+Features/Use Cases | Client Priority | Status 
+
+User creates new individual inventory items	1	complete
+Database tracks time/user on item creation and archive	1	complete
+User can bring up inventory item info by scanned item barcode	1	complete
+User can bring up inventory items info by scanned room barcode	1	complete
+User searches for inventory items by serial number, person assigned, room, etc.	1	complete
+User can edit item details (as permissions allow)	1	complete
+User can perform audit by room (with or without scanner)	1	complete - Can take off filter panel on new audit page to make it easier to use
+Admin can add new categories to combo box items (contact persons, building/room, device type, departments, replacement fiscal year)	1	in-progress, needs some work
+Admin can grant/change user individual permissions     1       complete
+Admin access role can view all items in all departments and archive items	1	complete
+Admin can view/change user details	1	complete
+Admin role creates new user accounts	1	complete
+Admin can view lists of users (filtered by permissions, department, etc.)	1	complete
+Admin can change a users password	1	complete
+Admin role "deactivates" user accounts	1 complete - remove all permissions to "deactivate"
+System authenticates users with login information (WNumber and password)	1	complete
+User creates a batch of inventory items from csv file	2	not complete, Can be worked on
+Admin archives "retired" items	2	complete
+Database tracks audit data for each item per each audit (status, date, and notes)	2	complete
+User can review past audits	2	complete
+Restrict employee access to only items in their department	2	not done
+STRETCH GOAL: Keep history of item changes	2	incomplete
+User can update audit notes	3	complete
+User can export data from individual audits to .csv and/or .pdf formats	3	incomplete - Patrick said he didn't need this
+Stretch Goal: User receives alerts for missing items	3	incomplete
+STRETCH GOAL: check-in/check-out system (maybe what we have is sufficient for tracking that)	3	incomplete - need more information
+STRETCH GOAL: faculty can log in and see tech checked out to them	3	incomplete

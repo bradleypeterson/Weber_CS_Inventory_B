@@ -1,0 +1,100 @@
+.filterContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.filterContainer p {
+  margin: 0;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.rangeStack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.dateRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.dateLabel {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.inputContainer {
+  position: relative;
+  width: 100%;
+}
+
+.dateInput {
+  width: 100%;
+  background-color: rgb(24, 26, 27);
+  border: 1px solid rgba(140, 130, 115, 0.23);
+  border-radius: 4px;
+  padding: 8px 12px;
+  color: var(--text);
+  outline: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.calendarIcon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  pointer-events: none;
+  width: 16px;
+  height: 16px;
+}
+
+/* Remove default calendar picker indicator*/
+.dateInput::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  cursor: pointer;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 100%;
+}
+
+/* Style the date input text */
+::-webkit-datetime-edit {
+  color: var(--text-secondary);
+  padding: 0;
+}
+
+::-webkit-datetime-edit-fields-wrapper {
+  color: var(--text);
+}
+
+::-webkit-datetime-edit-text {
+  color: var(--text-secondary);
+  padding: 0 2px;
+}
+
+::-webkit-datetime-edit-month-field,
+::-webkit-datetime-edit-day-field,
+::-webkit-datetime-edit-year-field {
+  color: var(--text);
+}
+
+.dateInput:focus {
+  border-color: var(--primary);
+  border-width: 2px;
+  padding: 7px 11px;
+} 

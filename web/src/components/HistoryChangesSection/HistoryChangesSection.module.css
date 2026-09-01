@@ -1,0 +1,67 @@
+.section {
+  width: 100%;
+  max-width: 100%;
+  margin-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.section h3 {
+  margin: 0;
+  align-self: flex-start;
+}
+
+.status,
+.empty {
+  margin-top: 0.25rem;
+}
+
+.error {
+  color: red;
+  margin-top: 0.25rem;
+}
+
+.noteExpand {
+  border: none;
+  background: none;
+  color: #7300ff;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.paginationRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.pageSizeWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pageNav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pageNav button {
+  border: 1px solid #ccc;
+  background: var(--primary-background, #fff);
+  color: #fff;
+  border-radius: 4px;
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+}
+
+.pageNav button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

@@ -1,0 +1,53 @@
+.loginBox {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  margin: auto;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.label {
+  font-size: 1rem;
+  color: #dbdbdb;
+  margin-bottom: 0.5rem;
+}
+
+.input {
+  padding: 0.75rem;
+  border: 1px solid;
+  border-radius: 4px;
+  background: #0d1012;
+  width: 100%;
+}
+
+button {
+  width: 100%;
+  padding: 0.75em;
+  margin-top: 1.5rem;
+  border: 1px solid;
+  border-radius: 4px;
+  border-color: #dbdbdbdb;
+  background: #0d1012;
+  color: #dbdbdb;
+  box-sizing: border-box;
+  font-size: 1rem;
+  height: 2.5rem;
+}
+
+button:hover {
+  background: #7300ff;
+}

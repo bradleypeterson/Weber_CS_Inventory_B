@@ -1,0 +1,27 @@
+.container {
+  font-family: "IBM Plex Mono", monospace;
+}
+
+.label {
+  display: block;
+  padding-bottom: 0.25rem;
+  color: var(--white);
+}
+
+.textarea {
+  width: 100%;
+  min-height: 100px;
+  background: var(--secondary-background);
+  color: var(--white);
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 15px;
+  padding: 0.5rem;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.textarea:focus {
+  outline: 1px solid var(--gray);
+  color: var(--white);
+}

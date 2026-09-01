@@ -1,0 +1,179 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  min-height: 100%;
+}
+
+.importSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 100%;
+}
+
+.errorMessage {
+  color: red;
+  font-size: 0.95rem;
+}
+
+.importResultRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  font-size: 0.95rem;
+}
+
+.inputRow {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  width: 40%;
+  max-width: 500px;
+}
+
+.fileNameField {
+  flex: 1;
+  gap: 1rem;
+  background: var(--secondary-background);
+  color: var(--white);
+  border: 1px solid var(--gray);
+  border-radius: 0.25rem;
+  font-size: 15px;
+  height: 40px;
+  width: 100%;
+  min-width: 100px;
+  padding: 0 0.75rem;
+}
+
+.progress {
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.previewSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.summary {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+}
+
+.tableContainer {
+  width: min(100%, 1200px);
+  max-width: min(100%, 1200px);
+  max-height: 60vh;
+  overflow-x: auto;
+  overflow-y: auto;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  background: white;
+  color-scheme: only light;
+}
+
+.table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+  color: black;
+  color-scheme: only light;
+}
+
+.table th,
+.table td {
+  border: 1px solid #ececec;
+  padding: 0.45rem 0.55rem;
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
+;
+}
+
+.table thead th {
+  position: sticky;
+  top: 0;
+  background: #f6f6f6;
+  z-index: 1;
+}
+
+.invalidRow td {
+  background: #ffe8e8;
+}
+
+.warningRow td {
+  background: #fffbeb;
+}
+
+.importButtonSection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.importActionRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.importButton {
+  width: 100%;
+  min-width: 200px;
+  padding: 0 0.75rem;
+}
+
+.successMessage {
+  color: #1f6f2b;
+}
+
+.partialMessage {
+  color: #8a5a00;
+}
+
+.failureMessage {
+  color: #b42318;
+}
+
+.failedRowsLink {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.failedRowsLink:hover {
+  color: #1e40af;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #cfcfcf;
+  border-top-color: #555;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.warningsWrap {
+  color: #8a5a00;
+  font-size: 0.95rem;
+  white-space: normal;
+  word-break: break-word;
+  max-width: 800px;
+}

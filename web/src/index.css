@@ -1,0 +1,53 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  font-family: "Fira Sans";
+  line-height: 1.5;
+  font-weight: 400;
+
+  /* This makes sure 1rem = 16px */
+  font-size: 16px;
+
+  color: var(--white);
+  background-color: var(--primary-background);
+
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Color Variables */
+  --primary: #7300ff;
+  --primary-background: #15181e;
+  --secondary-background: #0d1012;
+  --white: #ffffff;
+  --off-white: #ccc;
+  --white-dim: #dbdbdb50;
+  --gray: #414141;
+  --gray-blue: #212528;
+  --modal-background: #151a1e;
+}
+
+body,
+#root {
+  min-height: 100vh;
+}
+
+button {
+  font-family: "IBM Plex Mono", sans-serif;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  cursor: pointer;
+  color: var(--off-white);
+}
+
+a:hover {
+  text-decoration: underline;
+}
