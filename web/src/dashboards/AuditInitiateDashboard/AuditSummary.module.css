@@ -1,0 +1,78 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 2rem;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  background: var(--background);
+  padding: 2rem;
+  border-radius: 0.5rem;
+  min-width: 400px;
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem;
+  background: var(--secondary-background);
+  border-radius: 0.25rem;
+}
+
+.summaryItem {
+  font-family: monospace;
+  font-size: 1.1rem;
+  color: var(--white);
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.detailItem {
+  font-family: monospace;
+  font-size: 1.1rem;
+  color: var(--white);
+}
+
+.error {
+  color: var(--error);
+  font-size: 0.875rem;
+  text-align: center;
+  min-height: 1.25rem;
+}
+
+.confirmButton, .finishButton {
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 0.25rem;
+  color: var(--white);
+  cursor: pointer;
+  width: 200px;
+  font-size: 1rem;
+  background: var(--secondary-background);
+  transition: background-color 0.2s;
+}
+
+.confirmButton:hover:not(:disabled), 
+.finishButton:hover:not(:disabled) {
+  background: var(--primary);
+}
+
+.confirmButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

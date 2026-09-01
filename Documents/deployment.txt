@@ -1,0 +1,10 @@
+ssh into purplefusion_u@timetracker.users.weber.edu
+go to Weber_CS_tech_inventory
+
+run git pull
+
+run ./deploy.sh
+
+follow all prompts.
+
+Thats all.

@@ -1,0 +1,106 @@
+.table {
+  width: 100%;
+  height: fit-content;
+  border-collapse: collapse;
+  overflow-x: auto;
+  color-scheme: only light;
+}
+
+.table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: #0d1012;
+  color: #d9d9d9;
+  padding: 10px;
+  text-align: left;
+}
+
+.table tr:nth-child(odd) {
+  background-color: #b7b7b7;
+}
+
+.table tr:nth-child(even) {
+  background-color: #dbdbdb;
+}
+
+.table td {
+  color: #0d1012;
+  padding: 10px;
+}
+
+.checkboxHeader {
+  width: 0px;
+}
+
+.dropdownContainer {
+  position: relative;
+  width: 100%;
+}
+
+.dropdownSelect {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  cursor: pointer;
+  padding: 2px;
+  transition: 0.1s ease-in;
+  border-radius: 4px;
+}
+
+.dropdownSelect:hover {
+  background-color: rgba(13, 16, 18, 0.05);
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #dbdbdb;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.dropdownOption {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dropdownOption:hover {
+  background-color: rgba(13, 16, 18, 0.05);
+}
+
+.iconButton {
+  background: transparent;
+  border: 2px solid #444;
+  border-radius: 8px;
+  padding: 3px 4px 8px 4px;
+  transition:
+    background 0.2s ease-in-out,
+    border 0.2s ease-in-out;
+}
+
+.iconButton:hover {
+  background: #7300ff;
+  border-color: #7300ff;
+}
+
+.iconButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.iconButton:disabled:hover {
+  background: transparent;
+  border-color: #444;
+}
+
+.iconButton svg {
+  color: inherit;
+}

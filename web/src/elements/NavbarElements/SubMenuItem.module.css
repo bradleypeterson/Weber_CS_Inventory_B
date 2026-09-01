@@ -1,0 +1,37 @@
+.item {
+  flex-shrink: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-decoration: none;
+  background: none;
+  color: var(--white);
+  font-size: 1.25rem;
+  width: 90%;
+  height: 40px;
+  border-radius: 0.25rem;
+  padding: 0 0.5rem;
+  transition: 0.2s ease-in-out;
+  border: none;
+
+  transition: 0.1s ease-in;
+}
+
+.item span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.item svg {
+  flex-shrink: 0;
+}
+
+.item:hover {
+  background: var(--primary);
+}
+
+.item.active {
+  background: var(--primary);
+}

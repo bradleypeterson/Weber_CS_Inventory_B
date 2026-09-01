@@ -1,0 +1,29 @@
+#app-layout {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  min-height: 100vh;
+  /* Let columns stay content-sized so sticky sidebars/filters stick to the viewport while main scrolls */
+  align-items: start;
+  transition: grid-template-columns 0.1s ease-in-out;
+}
+
+#app-layout.show-filter-panel {
+  grid-template-columns: auto auto 1fr;
+}
+
+#app-layout.show-filter-panel.no-sidebar {
+  grid-template-columns: auto 1fr;
+}
+
+#app-layout.no-sidebar {
+  grid-template-columns: 1fr;
+}
+
+.filter-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.25rem;
+  width: 100%;
+}

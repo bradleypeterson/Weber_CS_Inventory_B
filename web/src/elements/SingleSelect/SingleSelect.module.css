@@ -1,0 +1,89 @@
+.container {
+  font-family: "IBM Plex Mono", monospace;
+  position: relative;
+}
+
+.select {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  background: var(--secondary-background);
+  color: var(--white);
+  border: none;
+  border-radius: 0.25rem;
+  transition: 0.1s ease-in;
+
+  font-size: 15px;
+  height: 40px;
+  width: 100%;
+  min-width: 100px;
+  padding: 0 0.25rem;
+  outline: 0px solid var(--primary);
+  border: 1px solid var(--gray);
+  cursor: pointer;
+}
+
+.select:hover {
+  border: 1px solid var(--white-dim);
+}
+
+.select.disabled:hover {
+  border: 1px solid var(--gray);
+  cursor: not-allowed;
+}
+
+.select span {
+  background: var(--gray-blue);
+  padding: 0.25rem 0.5rem;
+  width: fit-content;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown {
+  background-color: var(--secondary-background);
+  overflow: hidden;
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+}
+
+.optionList {
+  max-height: 160px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray) transparent;
+}
+
+.option {
+  cursor: pointer;
+  padding: 0.25rem;
+  list-style-type: none;
+  transition: 0.1s ease-in;
+  box-shadow: inset 0 0 0px 0px var(--primary);
+}
+
+.option.focused {
+  box-shadow: inset 0 0 3px 1px var(--primary);
+}
+
+.option.selected {
+  background: var(--gray-blue);
+}
+
+.option:hover {
+  background-color: var(--primary);
+}
+
+.searchInput {
+  width: 100%;
+  background: none;
+  color: var(--white);
+  padding: 0.25rem;
+  border: none;
+  outline: none;
+  border-bottom: 1px solid var(--gray);
+}

@@ -1,0 +1,101 @@
+.layout {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 1rem;
+  margin: 2rem;
+}
+
+.tableHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  height: fit-content;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.searchExportRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.exportButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: #fff;
+  background: var(--primary-background, #fff);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 80px;
+}
+
+.exportButton:hover:not(:disabled) {
+  background: #7300ff;
+}
+
+.exportButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.modalActions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.paginationRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.pageSizeWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pageSizeWrap select {
+  border: 1px solid #ccc;
+  background: var(--primary-background, #fff);
+  color: #fff;
+  border-radius: 4px;
+  height: 2rem;
+  padding: 0 0.35rem;
+}
+
+.pageNav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pageNav button {
+  border: 1px solid #ccc;
+  background: var(--primary-background, #fff);
+  color: #fff;
+  border-radius: 4px;
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+}
+
+.pageNav button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

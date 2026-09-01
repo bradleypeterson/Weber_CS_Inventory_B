@@ -1,0 +1,48 @@
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  color: var(--white);
+  border: none;
+  border-radius: 0.25rem;
+  transition: 0.1s ease-in;
+
+  font-size: 1.5rem;
+  height: 40px;
+  width: 40px;
+  flex-shrink: 0;
+  outline: 0px solid var(--primary);
+}
+
+.button.primary {
+  outline: 1px solid var(--primary);
+}
+
+.button.secondary {
+  outline: 1px solid var(--gray);
+}
+
+.button.small {
+  height: 25px;
+  width: 25px;
+  padding: 0.25rem;
+}
+
+.button:hover {
+  background: var(--primary);
+  outline: 1px solid var(--primary);
+}
+
+.button:disabled {
+  color: var(--gray);
+}
+
+.button:disabled:hover {
+  cursor: default;
+  background: none;
+}
+
+.button.primary:disabled {
+  outline: 1px solid var(--gray);
+}

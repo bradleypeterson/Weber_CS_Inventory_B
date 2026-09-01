@@ -1,0 +1,47 @@
+.container {
+  font-family: "IBM Plex Mono", monospace;
+  display: flex;
+  align-items: center;
+  height: 24px;
+  --checkbox-color: var(--white);
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox {
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--checkbox-color);
+  border-radius: 3px;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+}
+
+.checkbox:checked {
+  background: transparent;
+}
+
+.checkbox:checked::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 2px;
+  width: 5px;
+  height: 11px;
+  border: solid var(--checkbox-color);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.label {
+  margin-left: 12px;
+  color: var(--checkbox-color);
+  font-size: 15px;
+}
