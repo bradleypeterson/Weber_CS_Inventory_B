@@ -130,7 +130,11 @@ async function seedDatabase() {
         ('W01111112', 'Maria', 'Bennett', 2),
         ('W01111113', 'Ben', 'Cash', 3),
         ('W01111114', 'Josh', 'Morgan', 4),
-        ('W01111115', 'Patrick', 'Beck', (SELECT LocationID FROM Location WHERE Barcode = 'CAE106' LIMIT 1));
+        ('W01111115', 'Patrick', 'Beck', (SELECT LocationID FROM Location WHERE Barcode = 'CAE106' LIMIT 1)),
+        ('W01111116', 'Asset', 'Tester', (SELECT LocationID FROM Location WHERE Barcode = 'CAE106' LIMIT 1)),
+        ('W01111117', 'Contact List', 'Tester', (SELECT LocationID FROM Location WHERE Barcode = 'CAE106' LIMIT 1)),
+        ('W01111118', 'User Admin', 'Tester', (SELECT LocationID FROM Location WHERE Barcode = 'CAE106' LIMIT 1)),
+        ('W01111119', 'No Permission', 'Tester', (SELECT LocationID FROM Location WHERE Barcode = 'CAE106' LIMIT 1));
         `
     );
 
@@ -142,6 +146,16 @@ async function seedDatabase() {
         (4, '6386b1dfb33a3a4439e15e45363d4ab3c51a8fa758086d9a51670834a78f8bbf','2cef97f7a9744f60ceb9f93839e09929'),
         ((SELECT PersonID FROM Person WHERE WNumber = 'W01111115' LIMIT 1), '6386b1dfb33a3a4439e15e45363d4ab3c51a8fa758086d9a51670834a78f8bbf', '2cef97f7a9744f60ceb9f93839e09929');
         `
+    );
+
+    await pool.query(
+      // Use the same credentials as the existing seed users (password: "a").
+      `INSERT INTO User(PersonID, HashedPassword, Salt)
+       SELECT PersonID,
+         '6386b1dfb33a3a4439e15e45363d4ab3c51a8fa758086d9a51670834a78f8bbf',
+         '2cef97f7a9744f60ceb9f93839e09929'
+       FROM Person
+       WHERE WNumber IN ('W01111116', 'W01111117', 'W01111118', 'W01111119');`
     );
 
     await pool.query(
@@ -176,6 +190,18 @@ async function seedDatabase() {
     );
 
     await pool.query(
+      // W01111119 intentionally has no UserPermission rows.
+      `INSERT INTO UserPermission(UserID, PermissionID)
+       SELECT u.UserID, permission.PermissionID
+       FROM User u
+       JOIN Person p ON p.PersonID = u.PersonID
+       CROSS JOIN Permission permission
+       WHERE (p.WNumber = 'W01111116' AND permission.PermissionID IN (1, 2, 3))
+          OR (p.WNumber = 'W01111117' AND permission.PermissionID IN (4, 5))
+          OR (p.WNumber = 'W01111118' AND permission.PermissionID IN (6, 7));`
+    );
+
+    await pool.query(
       `INSERT INTO PersonDepartment(PersonID, DepartmentID) VALUES 
         (1,1),
         (2,2),
@@ -183,6 +209,15 @@ async function seedDatabase() {
         (4,4),
         ((SELECT PersonID FROM Person WHERE WNumber = 'W01111115' LIMIT 1), 1);
         `
+    );
+
+    await pool.query(
+      `INSERT INTO PersonDepartment(PersonID, DepartmentID)
+       SELECT p.PersonID, d.DepartmentID
+       FROM Person p
+       CROSS JOIN Department d
+       WHERE p.WNumber IN ('W01111116', 'W01111117', 'W01111118', 'W01111119')
+         AND d.Abbreviation = 'SOC';`
     );
 
     await pool.query(
