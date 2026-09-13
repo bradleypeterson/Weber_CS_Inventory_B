@@ -21,6 +21,22 @@ export type AuditInitiateResponse = {
   isEmptyRoom: boolean;
 };
 
+export type EquipmentDetailsRow = {
+  EquipmentID: number;
+  TagNumber: string;
+  SerialNumber: string;
+  Description: string;
+  DepartmentID: number;
+  DepartmentName: string;
+  LocationID: number;
+  RoomNumber: string;
+  BuildingID: number;
+  BuildingName: string;
+  BuildingAbbr: string;
+  DeviceTypeName: string;
+  status?: number;
+}
+
 const auditInitiateResponseSchema: JSONSchemaType<AuditInitiateResponse> = {
   type: "object",
   properties: {
@@ -93,6 +109,59 @@ const auditNotesSchema: JSONSchemaType<ItemNote[]> = {
 
 const validateAuditNotes = ajv.compile<ItemNote[]>(auditNotesSchema);
 
+const equipmentDetailsSchema = {
+  type: "array",
+  items: {
+    type: "object",
+    properties: {
+      EquipmentID: { type: "number" },
+      TagNumber: { type: "string" },
+      SerialNumber: { type: "string" },
+      Description: { type: "string" },
+      DepartmentID: { type: "number" },
+      DepartmentName: { type: "string" },
+      LocationID: { type: "number" },
+      RoomNumber: { type: "string" },
+      BuildingID: { type: "number" },
+      BuildingName: { type: "string" },
+      BuildingAbbr: { type: "string" },
+      DeviceTypeName: { type: "string" },
+      status: { type: "number", nullable: true }
+    },
+    required: [
+      "EquipmentID",
+      "TagNumber",
+      "SerialNumber",
+      "Description",
+      "DepartmentID",
+      "DepartmentName",
+      "LocationID",
+      "RoomNumber",
+      "BuildingID",
+      "BuildingName",
+      "BuildingAbbr",
+      "DeviceTypeName"
+    ],
+    additionalProperties: true
+  }
+} as const;
+
+const validateEquipmentDetails = ajv.compile<EquipmentDetailsRow[]>(
+  equipmentDetailsSchema
+);
+
+const scanItemResponseSchema = {
+  type: "object",
+  properties: {
+    TagNumber: { type: "string" },
+    EquipmentID: { type: "number" }
+  },
+  required: ["TagNumber", "EquipmentID"],
+  additionalProperties: true
+} as const;
+
+const validateScanItemResponse = ajv.compile(scanItemResponseSchema);
+
 
 export async function initiateAudit(roomBarcode: string) {
   const response = await post("/audits/initiate", { roomBarcode }, validateAuditInitiateResponse);
@@ -138,6 +207,16 @@ export async function updateAuditNotes(auditId: string, notes: ItemNote[]) {
   );
   if (response.status === "success") {
     return true;
+  }
+
+  throw new Error(response.error.message);
+}
+
+
+export async function fetchEquipmentInRoom(roomId: string) {
+  const response = await get(`/audits/equipment/${roomId}`, validateEquipmentDetails);
+  if (response.status === "success") {
+    return response.data;
   }
 
   throw new Error(response.error.message);
