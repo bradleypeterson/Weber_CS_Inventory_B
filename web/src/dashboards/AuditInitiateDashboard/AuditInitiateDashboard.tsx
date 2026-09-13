@@ -1,23 +1,14 @@
 import { ArrowRight, Barcode } from "@phosphor-icons/react";
-import { PermissionId, hasPermission } from "../../../../@types/permissions";
 import { useState } from "react";
 import { useMutation } from "react-query";
+import { PermissionId, hasPermission } from "../../../../@types/permissions";
+import { initiateAudit } from "../../api/audit";
 import { IconButton } from "../../elements/IconButton/IconButton";
 import { IconInput } from "../../elements/IconInput/IconInput";
 import { useAuth } from "../../hooks/useAuth";
 import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./AuditInitiateDashboard.module.css";
 
-interface AuditResponse {
-  status: "success";
-  data: {
-    roomNumber: string;
-    locationId: number;
-    equipmentCount: number;
-    auditIds: number[];
-    isEmptyRoom: boolean;
-  };
-}
 
 export function AuditInitiateDashboard() {
   const { permissions } = useAuth();
@@ -25,13 +16,8 @@ export function AuditInitiateDashboard() {
   const [error, setError] = useState("");
   const linkTo = useLinkTo();  
 
-  const initiateAudit = useMutation<AuditResponse, Error, string>({
+  const initiateAuditMutation = useMutation({
     mutationFn: async (roomBarcode: string) => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Not authenticated - please log in');
-      }
-
       // Clear all audit-related data from localStorage before starting new audit
       const keys = Object.keys(localStorage);
       keys.forEach(key => {
@@ -40,24 +26,7 @@ export function AuditInitiateDashboard() {
         }
       });
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/audits/initiate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ roomBarcode })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        if (response.status === 401) {
-          throw new Error('Authentication failed - please log in again');
-        }
-        throw new Error(errorData.error?.message || 'Failed to initiate audit');
-      }
-
-      return response.json();
+      return initiateAudit(roomBarcode);
     },
     onSuccess: (data) => {
       // Navigate to new audit page with room info
@@ -65,7 +34,7 @@ export function AuditInitiateDashboard() {
       linkTo(
         "New Audit", 
         ["Audits", "Initiate Audit"], 
-        `room_id=${data.data.locationId}&room_number=${data.data.roomNumber}`
+        `room_id=${data.locationId}&room_number=${data.roomNumber}`
       );
     },
     onError: (error) => {
@@ -87,7 +56,7 @@ export function AuditInitiateDashboard() {
 
   const handleSubmit = () => {
     if (!barcode) return;
-    initiateAudit.mutate(barcode);
+    initiateAuditMutation.mutate(barcode);
   };
 
   return (
@@ -114,7 +83,7 @@ export function AuditInitiateDashboard() {
           <IconButton
             icon={<ArrowRight />}
             variant="primary"
-            disabled={barcode === "" || initiateAudit.isLoading}
+            disabled={barcode === "" || initiateAuditMutation.isLoading}
             onClick={handleSubmit}
           />
         </div>
