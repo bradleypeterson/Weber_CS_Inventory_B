@@ -152,7 +152,7 @@ export async function submitAudit(req: Request, res: Response) {
 
     res.status(200).json({ 
       status: "success",
-      message: "Audit submitted successfully"
+      data: {}
     });
   } catch (error) {
     console.error("Error submitting audit:", error);
