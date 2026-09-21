@@ -26,3 +26,9 @@ This section is for new frontend contributors working within the `web/` director
 1. Create the dashboard component in `web/src/dashboards`.
 2. Register it in `web/src/navigation/Configuration.tsx`.
 3. Optionally add filters to the configuration.
+## New page definition of done
+1. Route is registered and opens correctly.
+2. Page appears in sidebar if it is a `dashboard` route.
+3. Permission behavior is correct (`availability` tested).
+4. Filter panel behavior is correct.
+5. Layout works at common desktop and mobile widths.
