@@ -17,3 +17,8 @@ This section is for new frontend contributors working within the `web/` director
 - `dashboard` entries are pages under a sidebar menu.
 - `tab` entries are nested routes under a dashboard.
 - `page` entries are standalone routes (outside sidebar flow, such as Login).
+## Navigation gotchas
+- The route config file is `web/src/navigation/Configuration.tsx` (capital `C`).
+- Route paths are generated from labels, so label changes also change URLs.
+- Internal navigation often uses labels, not hardcoded URLs.
+- Logged-out users only get the Login route until auth is present.
