@@ -373,3 +373,5 @@ function BuildColumns() {
 
   return columns;
 }
+
+export default AuditDetailsDashboard;

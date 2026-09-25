@@ -401,3 +401,5 @@ export function ImportDataDashboard() {
     </main>
   );
 }
+
+export default ImportDataDashboard;

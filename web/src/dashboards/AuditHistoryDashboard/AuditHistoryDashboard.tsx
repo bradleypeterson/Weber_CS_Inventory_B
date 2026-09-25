@@ -1,8 +1,8 @@
 import { Briefcase, CaretDown, MagnifyingGlass } from "@phosphor-icons/react";
-import { PermissionId, hasPermission } from "../../../../@types/permissions";
 import { JSONSchemaType } from "ajv";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "react-query";
+import { PermissionId, hasPermission } from "../../../../@types/permissions";
 import { ajv } from "../../ajv";
 import { get } from "../../api/helpers";
 import { Column, DynamicTable } from "../../elements/DynamicTable/DynamicTable";
@@ -240,3 +240,5 @@ export function AuditHistoryDashboard() {
     </main>
   );
 }
+
+export default AuditHistoryDashboard;

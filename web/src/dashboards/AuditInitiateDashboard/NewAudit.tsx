@@ -602,3 +602,5 @@ export function NewAudit() {
     </div>
   );
 }
+
+export default NewAudit;

@@ -36,3 +36,5 @@ export function Logout() {
     </main>
   );
 }
+
+export default Logout;

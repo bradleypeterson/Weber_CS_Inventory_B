@@ -271,3 +271,5 @@ export function AssetsSearchDashboard() {
     </main>
   );
 }
+
+export default AssetsSearchDashboard;

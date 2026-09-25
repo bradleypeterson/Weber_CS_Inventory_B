@@ -675,3 +675,5 @@ export function EditListDashboard() {
     </div>
   );
 }
+
+export default EditListDashboard;
