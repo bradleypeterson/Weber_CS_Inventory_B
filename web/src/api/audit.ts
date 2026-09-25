@@ -150,19 +150,6 @@ const validateEquipmentDetails = ajv.compile<EquipmentDetailsRow[]>(
   equipmentDetailsSchema
 );
 
-const scanItemResponseSchema = {
-  type: "object",
-  properties: {
-    TagNumber: { type: "string" },
-    EquipmentID: { type: "number" }
-  },
-  required: ["TagNumber", "EquipmentID"],
-  additionalProperties: true
-} as const;
-
-const validateScanItemResponse = ajv.compile(scanItemResponseSchema);
-
-
 export async function initiateAudit(roomBarcode: string) {
   const response = await post("/audits/initiate", { roomBarcode }, validateAuditInitiateResponse);
   if (response.status === "success") {

@@ -34,6 +34,7 @@ app.use(
       "http://localhost:3000",
       "http://localhost:5173",
       "http://localhost:5174",
+      "http://localhost:4173",
       "http://timetracker.users.weber.edu",
       "http://timetracker.users.weber.edu/inventory",
       "http://137.190.19.215"
