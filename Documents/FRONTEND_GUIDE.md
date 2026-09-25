@@ -25,7 +25,7 @@ This section is for new frontend contributors working within the `web/` director
 ## How new pages are added
 1. Create the dashboard component in `web/src/dashboards`.
 2. Register it in `web/src/navigation/Configuration.tsx`.
-3. Optionally add filters to the configuration.
+3. Set `availability` permissions and optionally add filters and tabs to the configuration.
 ## New page definition of done
 1. Route is registered and opens correctly.
 2. Page appears in sidebar if it is a `dashboard` route.
