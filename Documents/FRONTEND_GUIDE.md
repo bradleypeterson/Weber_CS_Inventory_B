@@ -2,8 +2,8 @@
 This section is for new frontend contributors working within the `web/` directory.
 
 ## Design references
-- `Documents/Wireframes.zip`
-- `Documents/UI Feedback.docx`
+- `Documents/Archive/First Group - Pre 2026/Wireframes.zip`
+- `Documents/Archive/First Group - Pre 2026/UI Feedback.docx`
 - `web/public/screenshots/`
 ## Main frontend folders
 - `web/src/dashboards`: App pages (most feature screens live here)
