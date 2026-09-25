@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { PermissionId, hasPermission } from "../../../../@types/permissions";
 import { useMutation } from "react-query";
+import { PermissionId, hasPermission } from "../../../../@types/permissions";
+import { submitAudit, type AuditSubmission } from "../../api/audit";
 import { useAuth } from "../../hooks/useAuth";
 import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./AuditSummary.module.css";
@@ -10,17 +11,6 @@ interface StatusCounts {
   damaged: number;
   missing: number;
   turnedIn: number;
-}
-
-interface ItemNote {
-  tagNumber: string;
-  note: string;
-}
-
-interface AuditSubmission {
-  roomId: string;
-  itemStatuses: Record<string, number>;
-  itemNotes: ItemNote[];
 }
 
 export function AuditSummary() {
@@ -35,11 +25,8 @@ export function AuditSummary() {
     turnedIn: 0
   });
 
-  const submitAudit = useMutation({
-    mutationFn: async (data: AuditSubmission) => {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('Not authenticated');
-      
+  const submitAuditMutation = useMutation({
+    mutationFn: async (data: AuditSubmission) => {      
       // Ensure clean data structures
       const cleanData = {
         roomId: data.roomId,
@@ -47,25 +34,7 @@ export function AuditSummary() {
         itemNotes: Array.isArray(data.itemNotes) ? data.itemNotes : []
       };
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/audits/submit`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(cleanData)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Submit response error:', {
-          status: response.status,
-          statusText: response.statusText
-        });
-        throw new Error(errorData.error?.message || 'Failed to submit audit');
-      }
-
-      return response.json();
+      return submitAudit(cleanData);
     },
     onSuccess: () => {
       // Only clear localStorage after successful submission
@@ -184,7 +153,7 @@ export function AuditSummary() {
         itemNotes: cleanNotes
       };
 
-      submitAudit.mutate(submissionData);
+      submitAuditMutation.mutate(submissionData);
     } catch (error) {
       console.error('Error preparing audit data:', error);
       setError(error instanceof Error ? error.message : 'Failed to prepare audit data');
@@ -234,9 +203,9 @@ export function AuditSummary() {
         <button 
           className={styles.confirmButton}
           onClick={handleSubmit}
-          disabled={submitAudit.isLoading}
+          disabled={submitAuditMutation.isLoading}
         >
-          {submitAudit.isLoading ? 'Submitting...' : 'Submit Audit'}
+          {submitAuditMutation.isLoading ? 'Submitting...' : 'Submit Audit'}
         </button>
       </div>
     </main>

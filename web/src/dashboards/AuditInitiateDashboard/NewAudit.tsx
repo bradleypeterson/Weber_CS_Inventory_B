@@ -1,9 +1,9 @@
 import { ArrowRight, Barcode } from "@phosphor-icons/react";
-import { PermissionId, hasPermission } from "../../../../@types/permissions";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useSearchParams } from "react-router-dom";
-import type { APIResponse } from "../../../../@types/api";
+import { PermissionId, hasPermission } from "../../../../@types/permissions";
+import { fetchEquipmentInRoom, type EquipmentDetailsRow, type ItemNote } from "../../api/audit";
 import { ItemNoteModal } from "../../components/ItemNotes/ItemNoteModal";
 import { ItemNotes } from "../../components/ItemNotes/ItemNotes";
 import { IconButton } from "../../elements/IconButton/IconButton";
@@ -14,28 +14,6 @@ import { useFilters } from "../../filters/useFilters";
 import { useAuth } from "../../hooks/useAuth";
 import { useLinkTo } from "../../navigation/useLinkTo";
 import styles from "./NewAudit.module.css";
-
-interface EquipmentDetailsRow {
-  EquipmentID: number;
-  TagNumber: string;
-  SerialNumber: string;
-  Description: string;
-  DepartmentID: number;
-  DepartmentName: string;
-  LocationID: number;
-  RoomNumber: string;
-  BuildingID: number;
-  BuildingName: string;
-  BuildingAbbr: string;
-  DeviceTypeName: string;
-  status?: number;
-}
-
-// Define type for item notes
-interface ItemNote {
-  tagNumber: string;
-  note: string;
-}
 
 export function NewAudit() {
   const { permissions } = useAuth();
@@ -82,26 +60,10 @@ export function NewAudit() {
     queryClient.removeQueries(["equipmentInRoom"]);
   }, [queryClient]);
 
-  const { data: equipmentData, isLoading } = useQuery<APIResponse<EquipmentDetailsRow[]>>(
+  const { data: equipmentData, isLoading } = useQuery<EquipmentDetailsRow[]>(
     ["equipmentInRoom", roomId],
     async () => {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('Not authenticated');
-
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/audits/equipment/${roomId}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch equipment data');
-      }
-
-      const data = await response.json();
+      const data = await fetchEquipmentInRoom(roomId!);
       
       // Get stored items for this room
       const savedItems = localStorage.getItem(`audit_added_items_${roomId}`);
@@ -116,14 +78,8 @@ export function NewAudit() {
       }
       
       // Combine server data with stored items
-      if (data.status === "success") {
-        return {
-          ...data,
-          data: [...data.data, ...additionalItems]
-        };
-      }
-      
-      return data;
+      return [...data, ...additionalItems];
+
     },
     {
       enabled: !!roomId,
@@ -133,13 +89,16 @@ export function NewAudit() {
       refetchOnWindowFocus: false
     }
   );
-  const equipmentRows = equipmentData?.status === "success" ? equipmentData.data : [];
+  const equipmentRows = equipmentData ?? [];
 
   const scanItem = useMutation({
     mutationFn: async (itemBarcode: string) => {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('Not authenticated');
 
+      // Keep this endpoint as a direct fetch because its
+      // "not_assigned_to_room" response does not conform to the shared APIResponse type. 
+      // conforming it or the call would be more work than its worth
       const response = await fetch(`${import.meta.env.VITE_API_URL}/audits/scan-item`, {
         method: 'POST',
         headers: {
@@ -278,19 +237,13 @@ export function NewAudit() {
       }]);
       
       // Update the cache with the new item
-      queryClient.setQueryData<APIResponse<EquipmentDetailsRow[]>>(
+      queryClient.setQueryData<EquipmentDetailsRow[]>(
         ["equipmentInRoom", roomId],
-        (oldData: APIResponse<EquipmentDetailsRow[]> | undefined) => {
-          if (!oldData || oldData.status !== "success") {
-            return {
-              status: "success",
-              data: [pendingItem]
-            };
+        (oldData) => {
+          if (!oldData) {
+            return [pendingItem];
           }
-          return {
-            ...oldData,
-            data: [...oldData.data, pendingItem]
-          };
+          return [...oldData, pendingItem];
         }
       );
     }
@@ -305,9 +258,9 @@ export function NewAudit() {
   };
 
   const filteredData = useMemo(() => {
-    if (!equipmentData || equipmentData.status !== "success") return [];
+    if (!equipmentData) return [];
     
-    return equipmentData.data
+    return equipmentData
       .filter((row: EquipmentDetailsRow) => {
         const departmentMatch = !filters.Department?.length || filters.Department.includes(row.DepartmentID);
         const buildingMatch = !filters.Building?.length || filters.Building.includes(row.BuildingID);
@@ -424,25 +377,6 @@ export function NewAudit() {
         try {
           const items = JSON.parse(savedAddedItems);
           setAddedItems(items);
-          // Update the React Query cache with the added items
-          queryClient.setQueryData<APIResponse<EquipmentDetailsRow[]>>(
-            ["equipmentInRoom", roomId],
-            (oldData: APIResponse<EquipmentDetailsRow[]> | undefined) => {
-              if (!oldData || oldData.status !== "success") {
-                return {
-                  status: "success",
-                  data: items
-                };
-              }
-              // Combine existing data with added items, avoiding duplicates
-              const existingTagNumbers = new Set(oldData.data.map((item: EquipmentDetailsRow) => item.TagNumber));
-              const newItems = items.filter((item: EquipmentDetailsRow) => !existingTagNumbers.has(item.TagNumber));
-              return {
-                ...oldData,
-                data: [...oldData.data, ...newItems]
-              };
-            }
-          );
         } catch (error) {
           console.error('Error loading saved added items:', error);
         }
@@ -459,7 +393,7 @@ export function NewAudit() {
       // Only clear state if there's no stored room ID (new audit)
       clearAllState();
     }
-  }, [roomId, queryClient, clearAllState]);
+  }, [roomId, clearAllState]);
 
   // Save state to localStorage when it changes
   useEffect(() => {
@@ -578,7 +512,7 @@ export function NewAudit() {
         />
         <ItemNotes 
           itemNotes={itemNotes} 
-          equipmentItems={[...equipmentRows, ...addedItems]}
+          equipmentItems={equipmentRows}
           onAdd={handleAddItemNote}
           onDelete={handleDeleteItemNote}
         />
