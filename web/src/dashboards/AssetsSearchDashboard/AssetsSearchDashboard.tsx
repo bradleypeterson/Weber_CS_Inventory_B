@@ -105,7 +105,7 @@ export function AssetsSearchDashboard() {
     if (!filteredData.length) return;
     const fullData = await fetchAssetsExport(filteredData.map((r) => r.EquipmentID));
     if (!fullData) return;
-    downloadExport({
+    await downloadExport({
       data: fullData,
       columns: ASSETS_EXPORT_COLUMNS,
       format: "csv",

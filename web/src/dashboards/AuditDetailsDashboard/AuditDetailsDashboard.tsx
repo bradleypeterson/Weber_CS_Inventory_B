@@ -183,7 +183,7 @@ export function AuditDetailsDashboard() {
   };
 
   const handleExport = useCallback(
-    (format: "csv" | "pdf") => {
+    async (format: "csv" | "pdf") => {
       setExportMenuOpen(false);
       if (!auditId || !auditDetails?.length) return;
       const first = auditDetails[0];
@@ -192,7 +192,7 @@ export function AuditDetailsDashboard() {
         location: first ? `${first.building ?? ""} ${first.room ?? ""}`.trim() : "",
         auditor: first?.created_by ?? ""
       };
-      downloadAuditDetailsExport({
+      await downloadAuditDetailsExport({
         summary,
         equipmentData: auditDetails,
         equipmentColumns: AUDIT_DETAILS_EXPORT_COLUMNS,

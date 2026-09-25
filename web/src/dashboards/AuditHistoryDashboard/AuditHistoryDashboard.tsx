@@ -148,9 +148,9 @@ export function AuditHistoryDashboard() {
   );
 
   const handleExport = useCallback(
-    (format: "csv" | "pdf") => {
+    async (format: "csv" | "pdf") => {
       setExportMenuOpen(false);
-      downloadExport({
+      await downloadExport({
         data: filteredData,
         columns: AUDIT_EXPORT_COLUMNS,
         format,

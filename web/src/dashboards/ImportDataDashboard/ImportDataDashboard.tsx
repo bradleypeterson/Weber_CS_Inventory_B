@@ -257,10 +257,10 @@ export function ImportDataDashboard() {
     }
   }
 
-  function handleFailedRowsDownloadClick(event: MouseEvent<HTMLAnchorElement>) {
+  async function handleFailedRowsDownloadClick(event: MouseEvent<HTMLAnchorElement>) {
     event.preventDefault();
     if (!preview || !importResult) return;
-    downloadExport({
+    await downloadExport({
       data: importResult.failedRows,
       columns: buildFailedRowsExportColumns(preview.headers),
       format: "csv",

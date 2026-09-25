@@ -68,7 +68,7 @@ export function SystemNotesDashboard() {
       { all: true }
     );
     if (!allRows || allRows.rows.length === 0) return;
-    downloadExport({
+    await downloadExport({
       data: allRows.rows,
       columns: SYSTEM_NOTES_EXPORT_COLUMNS,
       format: "csv",
