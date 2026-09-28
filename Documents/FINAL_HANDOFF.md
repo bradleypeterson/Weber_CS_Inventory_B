@@ -1,6 +1,6 @@
 # Final Handoff: Weber CS Tech Inventory Tracker
 
-Last updated: April 23, 2026
+Last updated: September 28, 2026
 
 Application URL on Weber network:
 `http://timetracker.users.weber.edu/inventory-group2`
@@ -73,11 +73,38 @@ Application URL on Weber network:
 - `DB_NAME=...`
 - `JWT_SECRET=...`
 
-### Seeded baseline users (dev seed)
+### Seeded test accounts
 
-- W-numbers seeded in `api/src/db/seed_data.ts`: `W01111111` through `W01111115`.
-- Default seeded password hash corresponds to the plaintext used by the team seed setup (`a combination`).
-- `W01111115` (Patrick Beck) is seeded as both `Person` and `User` with department linkage.
+These accounts are for local development and testing.
+The initial password is `a`, unless changed in the local database.
+
+| W Number | Purpose / Permissions |
+|---|---|
+| W01111111 | Full administrator access |
+| W01111115 | Asset editing |
+| W01111116 | Asset editing, archiving, and CSV import |
+| W01111117 | Contact and list-option management |
+| W01111118 | User and permission management |
+| W01111119 | No assigned permissions |
+
+The five baseline contacts (W01111120–W01111124) are
+contact-only records and cannot log in.
+
+### Seed data coverage
+
+- Added verified buildings and rooms for Davis and Ogden.
+- Added five fictional baseline contacts, linked to SOC.
+  D3, DSC, CCE, and D13 contacts have assigned locations;
+  the DA contact remains unassigned pending confirmation.
+- Added automatic test-asset generation for rooms with no
+  non-deleted equipment in active buildings.
+- Generated assets cycle through PC, laptop, projector, and
+  printer types, using SOC and Good as test defaults.
+- Existing equipment is preserved by the asset-generation step.
+- Satellite campuses are not included in this expansion.
+
+See [Seeding Scope Notes](seeding-scope-notes.md) for room lists,
+sources, and pending items.
 
 ### Architecture overview
 
