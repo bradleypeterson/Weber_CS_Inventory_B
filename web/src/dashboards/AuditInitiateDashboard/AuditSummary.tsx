@@ -211,3 +211,5 @@ export function AuditSummary() {
     </main>
   );
 }
+
+export default AuditSummary;
