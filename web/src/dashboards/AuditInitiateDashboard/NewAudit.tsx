@@ -37,6 +37,16 @@ export function NewAudit() {
   const queryClient = useQueryClient();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const barcodeInputRef = useRef<HTMLInputElement>(null);
+  // Global scanner refocus listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (barcodeInputRef.current) {
+        barcodeInputRef.current.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Function to clear all state and storage
   const clearAllState = useCallback(() => {
