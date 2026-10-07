@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router";
 import { useAccessibleRoutes } from "./useAccessibleRoutes";
 
@@ -13,11 +13,19 @@ export function Router() {
 
   if (loading) return <>Loading</>;
   return (
-    <Routes>
-      {routes.map(
-        (route) => route.type !== "menu" && <Route key={route.key} path={route.path} element={route.element} />
-      )}
-      <Route path="*" element={<Navigate to="/login" />} />
-    </Routes>
+    <Suspense fallback={<>Loading...</>}>
+      <Routes>
+        {routes.map(
+          (route) => {
+            if (route.type === "menu") return null;
+
+            const Component = route.component;
+
+            return <Route key={route.key} path={route.path} element={<Component />} />;
+          }
+        )}
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
+    </Suspense>
   );
 }

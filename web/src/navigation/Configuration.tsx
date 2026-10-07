@@ -1,25 +1,60 @@
 import { Briefcase, Package, User, UserGear } from "@phosphor-icons/react";
+import { lazy } from "react";
 import { PermissionId, hasPermission } from "../../../@types/permissions";
-import { AssetsAddDashboard } from "../dashboards/AssetsAddDashboard/AssetsAddDashboard";
-import { AssetsDetailsDashboard } from "../dashboards/AssetsDetailsDashboard/AssetsDetailsDashboard";
-import { AssetsSearchDashboard } from "../dashboards/AssetsSearchDashboard/AssetsSearchDashboard";
-import { AuditDetailsDashboard } from "../dashboards/AuditDetailsDashboard/AuditDetailsDashboard";
-import { AuditHistoryDashboard } from "../dashboards/AuditHistoryDashboard/AuditHistoryDashboard";
-import { AuditInitiateDashboard } from "../dashboards/AuditInitiateDashboard/AuditInitiateDashboard";
-import { AuditSummary } from "../dashboards/AuditInitiateDashboard/AuditSummary";
-import { NewAudit } from "../dashboards/AuditInitiateDashboard/NewAudit";
-import { ContactDetailsDashboard } from "../dashboards/ContactDetailsDashboard/ContactDetailsDashboard";
-import { ContactSearchDashboard } from "../dashboards/ContactSearchDashboard/ContactSearchDashboard";
-import { EditListDashboard } from "../dashboards/EditListDashboard/EditListDashboard";
-import { ImportDataDashboard } from "../dashboards/ImportDataDashboard/ImportDataDashboard";
-import { LandingPage } from "../dashboards/LandingPage/LandingPage";
 import { Login } from "../dashboards/Login/Login";
-import { Logout } from "../dashboards/Logout/Logout";
-import { PasswordChangeDashboard } from "../dashboards/PasswordChangeDashboard/PasswordChangeDashboard";
-import { SystemNotesDashboard } from "../dashboards/SystemNotesDashboard/SystemNotesDashboard";
-import { UserDetailsDashboard } from "../dashboards/UserDetailsDashboard/UserDetailsDashboard";
-import { UserSearchDashboard } from "../dashboards/UserSearchDashboard/UserSearchDashboard";
 import { RouteConfiguration } from "./types";
+const AssetsAddDashboard = lazy(
+  () => import("../dashboards/AssetsAddDashboard/AssetsAddDashboard")
+);
+const AssetsDetailsDashboard = lazy(
+  () => import("../dashboards/AssetsDetailsDashboard/AssetsDetailsDashboard")
+);
+const AssetsSearchDashboard = lazy(
+  () => import("../dashboards/AssetsSearchDashboard/AssetsSearchDashboard")
+);
+const AuditDetailsDashboard = lazy(
+  () => import("../dashboards/AuditDetailsDashboard/AuditDetailsDashboard")
+);
+const AuditHistoryDashboard = lazy(
+  () => import("../dashboards/AuditHistoryDashboard/AuditHistoryDashboard")
+);
+const AuditInitiateDashboard = lazy(
+  () => import("../dashboards/AuditInitiateDashboard/AuditInitiateDashboard")
+);
+const AuditSummary = lazy(
+  () => import("../dashboards/AuditInitiateDashboard/AuditSummary")
+);
+const NewAudit = lazy(
+  () => import("../dashboards/AuditInitiateDashboard/NewAudit")
+);
+const ContactDetailsDashboard = lazy(
+  () => import("../dashboards/ContactDetailsDashboard/ContactDetailsDashboard")
+);
+const ContactSearchDashboard = lazy(
+  () => import("../dashboards/ContactSearchDashboard/ContactSearchDashboard")
+);
+const EditListDashboard = lazy(
+  () => import("../dashboards/EditListDashboard/EditListDashboard")
+);
+const ImportDataDashboard = lazy(
+  () => import("../dashboards/ImportDataDashboard/ImportDataDashboard")
+);
+const Logout = lazy(
+  () => import("../dashboards/Logout/Logout")
+);
+const PasswordChangeDashboard = lazy(
+  () => import("../dashboards/PasswordChangeDashboard/PasswordChangeDashboard")
+);
+const SystemNotesDashboard = lazy(
+  () => import("../dashboards/SystemNotesDashboard/SystemNotesDashboard")
+);
+const UserDetailsDashboard = lazy(
+  () => import("../dashboards/UserDetailsDashboard/UserDetailsDashboard")
+);
+const UserSearchDashboard = lazy(
+  () => import("../dashboards/UserSearchDashboard/UserSearchDashboard")
+);
+
 
 /* 
   Menus are in the sidebar - they have dashboards as children.
@@ -35,15 +70,15 @@ export const configuration: RouteConfiguration = [
         type: "dashboard",
         availability: () => true,
         label: "Search",
-        element: <AssetsSearchDashboard />,
+        component: AssetsSearchDashboard,
         filters: ["Department", "Asset Class"]
       },
-      { type: "dashboard", availability: () => true, label: "Asset Details", element: <AssetsDetailsDashboard /> },
+      { type: "dashboard", availability: () => true, label: "Asset Details", component: AssetsDetailsDashboard },
       {
         type: "dashboard",
         availability: ({ permissions }) => hasPermission(permissions, PermissionId.ADD_EDIT_ASSETS),
         label: "Add",
-        element: <AssetsAddDashboard />
+        component: AssetsAddDashboard
       }
     ],
     availability: () => true
@@ -57,24 +92,24 @@ export const configuration: RouteConfiguration = [
         type: "dashboard",
         availability: ({ permissions }) => hasPermission(permissions, PermissionId.ADD_EDIT_ASSETS),
         label: "Initiate Audit",
-        element: <AuditInitiateDashboard />,
+        component: AuditInitiateDashboard,
         tabs: [
           {
             type: "tab",
             label: "New Audit",
-            element: <NewAudit />,
+            component: NewAudit,
             //filters: ["Department", "Building", "Room"]
           },
-          { type: "tab", label: "Audit Summary", element: <AuditSummary /> }
+          { type: "tab", label: "Audit Summary", component: AuditSummary }
         ]
       },
       {
         type: "dashboard",
         availability: ({ permissions }) => hasPermission(permissions, PermissionId.ADD_EDIT_ASSETS),
         label: "History",
-        element: <AuditHistoryDashboard />,
+        component: AuditHistoryDashboard,
         filters: ["Date", "Building", "Room", "Auditor", "Status"],
-        tabs: [{ type: "tab", label: "Details", element: <AuditDetailsDashboard /> }]
+        tabs: [{ type: "tab", label: "Details", component: AuditDetailsDashboard }]
       }
     ],
     availability: () => true
@@ -88,38 +123,38 @@ export const configuration: RouteConfiguration = [
         type: "dashboard",
         availability: ({ permissions }) => hasPermission(permissions, PermissionId.ADD_EDIT_VIEW_USERS),
         label: "Users",
-        element: <UserSearchDashboard />,
+        component: UserSearchDashboard,
         filters: ["Permission", "Department"],
         tabs: [
-          { type: "tab", label: "Details", element: <UserDetailsDashboard /> },
-          { type: "tab", label: "Change Password", element: <PasswordChangeDashboard /> }
+          { type: "tab", label: "Details", component: UserDetailsDashboard },
+          { type: "tab", label: "Change Password", component: PasswordChangeDashboard }
         ]
       },
       {
         type: "dashboard",
         availability: ({ permissions }) => hasPermission(permissions, PermissionId.ADD_EDIT_CONTACT_PERSONS),
         label: "Contacts",
-        element: <ContactSearchDashboard />,
+        component: ContactSearchDashboard,
         filters: ["Department"],
-        tabs: [{ type: "tab", label: "Details", filters: ["Department"], element: <ContactDetailsDashboard /> }]
+        tabs: [{ type: "tab", label: "Details", filters: ["Department"], component: ContactDetailsDashboard }]
       },
       {
         type: "dashboard",
         availability: ({ permissions }) => hasPermission(permissions, PermissionId.ADD_EDIT_LIST_OPTIONS),
         label: "List Options",
-        element: <EditListDashboard />
+        component: EditListDashboard
       },
       {
         type: "dashboard",
         availability: ({ permissions }) => hasPermission(permissions, PermissionId.IMPORT_CSV_DATA),
         label: "Import Assets",
-        element: <ImportDataDashboard />
+        component: ImportDataDashboard
       },
       {
         type: "dashboard",
         availability: ({ permissions }) => hasPermission(permissions, PermissionId.ADD_EDIT_LIST_OPTIONS),
         label: "System Notes",
-        element: <SystemNotesDashboard />,
+        component: SystemNotesDashboard,
         filters: ["Entity Type", "Date", "Performed By"]
       }
     ],
@@ -130,39 +165,33 @@ export const configuration: RouteConfiguration = [
     label: "My Account",
     icon: <User />,
     menu: [
-      { type: "dashboard", availability: () => true, label: "Change Password", element: <PasswordChangeDashboard /> },
-      { type: "dashboard", availability: () => true, label: "Logout", element: <Logout /> }
+      { type: "dashboard", availability: () => true, label: "Change Password", component: PasswordChangeDashboard },
+      { type: "dashboard", availability: () => true, label: "Logout", component: Logout }
     ],
     availability: () => true
   },
   {
     type: "page",
     label: "Login",
-    element: <Login />,
-    availability: () => true
-  },
-  {
-    type: "page",
-    label: "Landingpage",
-    element: <LandingPage />,
+    component: Login,
     availability: () => true
   },
   {
     type: "page",
     availability: () => true,
     label: "contactdetails",
-    element: <ContactDetailsDashboard />
+    component: ContactDetailsDashboard
   },
   {
     type: "page",
     availability: () => true,
     label: "userdetails",
-    element: <UserDetailsDashboard />
+    component: UserDetailsDashboard
   },
   {
     type: "page",
     availability: () => true,
     label: "ChangeUserPassword",
-    element: <PasswordChangeDashboard />
+    component: PasswordChangeDashboard
   }
 ];

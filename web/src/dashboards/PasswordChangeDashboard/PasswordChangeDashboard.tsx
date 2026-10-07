@@ -317,3 +317,5 @@ function buildFormStructure( props: UserProps ): Column[] {
   }
   return formStructure;
 }
+
+export default PasswordChangeDashboard;

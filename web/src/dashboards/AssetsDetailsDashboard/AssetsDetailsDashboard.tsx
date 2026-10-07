@@ -1,5 +1,4 @@
 import { ArrowLeft, ArrowRight, Barcode, Check, Pencil, X } from "@phosphor-icons/react";
-import { PermissionId, hasPermission } from "../../../../@types/permissions";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { useNavigate, useSearchParams } from "react-router";
@@ -15,6 +14,7 @@ import {
   Note,
   Room
 } from "../../../../@types/data";
+import { PermissionId, hasPermission } from "../../../../@types/permissions";
 import { addNewNote, fetchAssetDetails, fetchAssetIdByTagNumber, fetchAssetNotes, updateAssetDetails } from "../../api/assets";
 import { HistoryChangesSection } from "../../components/HistoryChangesSection/HistoryChangesSection";
 import { Notes } from "../../components/Notes/Notes";
@@ -36,8 +36,8 @@ import {
   useRooms
 } from "../../hooks/optionHooks";
 import { useAuth } from "../../hooks/useAuth";
-import { isListOptionActive } from "../../utils/listOptionDeleted";
 import { useLinkTo } from "../../navigation/useLinkTo";
+import { isListOptionActive } from "../../utils/listOptionDeleted";
 import styles from "./AssetsDetailsDashboard.module.css";
 
 export function AssetsDetailsDashboard() {
@@ -585,3 +585,5 @@ function buildContactPersonOptions(
 
   return options;
 }
+
+export default AssetsDetailsDashboard;

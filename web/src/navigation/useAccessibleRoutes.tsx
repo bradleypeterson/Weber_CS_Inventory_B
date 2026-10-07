@@ -46,7 +46,7 @@ function buildMenuFeature(menu: Menu, auth: AuthContextType) {
       label: dashboard.label,
       path: buildPath(dashboard.label, [menu.label]),
       key: buildKey(dashboard.label, [menu.label]),
-      element: dashboard.element,
+      component: dashboard.component,
       filters: dashboard.filters
     };
 
@@ -56,7 +56,7 @@ function buildMenuFeature(menu: Menu, auth: AuthContextType) {
         label: tab.label,
         path: buildPath(tab.label, [menu.label, dashboard.label]),
         key: buildKey(tab.label, [menu.label, dashboard.label]),
-        element: tab.element,
+        component: tab.component,
         filters: tab.filters
       };
       items.push(builtTab);
@@ -87,7 +87,7 @@ function buildPageFeature(page: Page | undefined, auth: AuthContextType): BuiltP
       path: buildPath(page.label),
       key: buildKey(page.label),
       label: page.label,
-      element: page.element
+      component: page.component
     }
   ];
 }
