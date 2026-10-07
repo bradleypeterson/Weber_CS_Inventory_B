@@ -4,7 +4,7 @@ Write-Host "Starting Weber CS Tech Inventory Tracker Setup..." -ForegroundColor 
 $nodeVersion = node -v
 if ($nodeVersion -notmatch "^v22") {
     Write-Host "ERROR: Node v22 is strictly required. You are currently running $nodeVersion." -ForegroundColor Red
-    exit
+    exit 1
 }
 # 2. Clean Install Dependencies
 Write-Host "`nInstalling dependencies..." -ForegroundColor Yellow
