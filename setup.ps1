@@ -13,7 +13,7 @@ cd api; npm ci; cd ..
 cd web; npm ci; cd ..
 # 3. Environment Variable Scaffolding
 if (-not (Test-Path "web\.env")) {
-    Set-Content -Path "web\.env" -Value "VITE_API_URL=http://localhost:8080"
+    [System.IO.File]::WriteAllText((Join-Path (Get-Location) "web\.env"), "VITE_API_URL=http://localhost:8080", [System.Text.UTF8Encoding]::new($false))
 }
 if (-not (Test-Path "api\.env")) {
     Write-Host "`nWARNING: api/.env not found! Create it manually before running dbinit." -ForegroundColor Red
