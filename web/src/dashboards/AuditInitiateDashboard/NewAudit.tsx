@@ -37,9 +37,16 @@ export function NewAudit() {
   const queryClient = useQueryClient();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const barcodeInputRef = useRef<HTMLInputElement>(null);
-  // Global scanner refocus listener
+    // Global scanner refocus listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore keyboard shortcuts
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      
+      // Ignore if user is typing in another input (like the item notes textarea)
+      const activeTag = document.activeElement?.tagName.toLowerCase();
+      if (activeTag === 'input' || activeTag === 'textarea') return;
+
       if (barcodeInputRef.current) {
         barcodeInputRef.current.focus();
       }
