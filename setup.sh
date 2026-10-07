@@ -8,5 +8,12 @@ if [[ ! "$NODE_VER" =~ ^v22 ]]; then
 fi
 
 for dir in @types api web; do
-    (cd $dir && npm ci)
+    (cd "$dir" && npm ci) || exit 1
 done
+
+if [ ! -f web/.env ]; then
+    printf '%s\n' 'VITE_API_URL=http://localhost:8080' > web/.env
+fi
+if [ ! -f api/.env ]; then
+    printf '%s\n' 'WARNING: api/.env not found; create it before running dbinit.' >&2
+fi
