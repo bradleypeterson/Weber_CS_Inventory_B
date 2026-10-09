@@ -238,6 +238,7 @@ function UserDetailsView({ ...props }: DetailsViewProps) {
 
 function EmptyUserDetailsView({...props }: DetailsViewProps) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<
     Record<string, string | string[] | (string | number)[] | number[] | boolean | number>
   >({});
@@ -375,6 +376,7 @@ function EmptyUserDetailsView({...props }: DetailsViewProps) {
   return (
     <main className={styles.layout}>
       <div className={styles.row}>
+        <IconButton icon={<ArrowLeft />} variant="secondary" onClick={() => navigate(-1)} />
         <div>
           <h2>{props.sourcePersonID === null ? "New User Details" : "Convert Contact to User"}</h2>
         </div>
