@@ -79,6 +79,7 @@ type DetailsViewProps = {
 function UserDetailsView({ ...props }: DetailsViewProps) {
   const linkTo = useLinkTo();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
@@ -177,6 +178,7 @@ function UserDetailsView({ ...props }: DetailsViewProps) {
   return (
     <main className={styles.layout}>
       <div className={styles.row}>
+        <IconButton icon={<ArrowLeft />} variant="secondary" onClick={() => navigate(-1)} />
         <div>
           <h2>User Details</h2>
           <p> {formData.FirstName} {formData.LastName} | {formData.WNumber}</p>
