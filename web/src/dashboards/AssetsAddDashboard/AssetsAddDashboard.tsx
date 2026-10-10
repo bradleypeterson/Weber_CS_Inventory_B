@@ -425,3 +425,5 @@ function buildContactPersonOptions(
 
   return options;
 }
+
+export default AssetsAddDashboard;

@@ -163,3 +163,4 @@ export function UserSearchDashboard() {
   );
 }
 
+export default UserSearchDashboard;

@@ -1,8 +1,8 @@
 import { MagnifyingGlass, Pencil, Plus, Trash, UserPlus } from "@phosphor-icons/react";
-import { PermissionId, hasPermission } from "../../../../@types/permissions";
 import { useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { ContactOverview } from "../../../../@types/data";
+import { PermissionId, hasPermission } from "../../../../@types/permissions";
 import { archiveContacts, fetchContactList } from "../../api/contacts";
 import { Button } from "../../elements/Button/Button";
 import { Checkbox } from "../../elements/Checkbox/Checkbox";
@@ -175,3 +175,5 @@ export function ContactSearchDashboard() {
     </main>
   );
 }
+
+export default ContactSearchDashboard;

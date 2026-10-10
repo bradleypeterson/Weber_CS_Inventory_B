@@ -1,10 +1,10 @@
 import { Check, Pencil } from "@phosphor-icons/react";
-import { ALL_PERMISSION_IDS, PERMISSION_DISPLAY_NAMES, PermissionId, hasPermission } from "../../../../@types/permissions";
 import CryptoJS from "crypto-js";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { useSearchParams } from "react-router";
 import { Building, Department, Room } from "../../../../@types/data";
+import { ALL_PERMISSION_IDS, PERMISSION_DISPLAY_NAMES, PermissionId, hasPermission } from "../../../../@types/permissions";
 import { fetchContactDetails } from "../../api/contacts";
 import { addUserDetails, fetchUserDetails, promoteContactUserDetails, updateUserDetails } from "../../api/users";
 import {
@@ -24,9 +24,9 @@ import {
   useDepartments,
   useRooms,
 } from "../../hooks/optionHooks";
-import { isListOptionActive } from "../../utils/listOptionDeleted";
 import { useAuth } from "../../hooks/useAuth";
 import { useLinkTo } from "../../navigation/useLinkTo";
+import { isListOptionActive } from "../../utils/listOptionDeleted";
 import styles from "./UserDetailsDashboard.module.css";
 
 export function UserDetailsDashboard() {
@@ -576,3 +576,5 @@ function buildFormStructure(details: DetailsViewProps & { selectedBuildingID?: n
 
   return formStructure; 
 }
+
+export default UserDetailsDashboard;

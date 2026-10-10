@@ -91,3 +91,5 @@ export function AuditInitiateDashboard() {
     </main>
   );
 }
+
+export default AuditInitiateDashboard;

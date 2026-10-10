@@ -1,6 +1,3 @@
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
-
 /**
  * Column definition for export. Use getValue to format each cell (e.g. booleans as "Yes"/"No").
  */
@@ -48,7 +45,7 @@ function buildCsvContent<T>(data: T[], columns: ExportColumn<T>[]): string {
   return BOM + [header, ...rows].join("\r\n");
 }
 
-function buildPdfBlob<T>(data: T[], columns: ExportColumn<T>[]): Blob {
+function buildPdfBlob<T>(data: T[], columns: ExportColumn<T>[], jsPDF: typeof import("jspdf").jsPDF, autoTable: typeof import("jspdf-autotable").default): Blob {
   const doc = new jsPDF({ orientation: "landscape" });
   const head = [columns.map((c) => c.label)];
   const body = data.map((row) => columns.map((c) => c.getValue(row)));
@@ -121,7 +118,9 @@ function buildAuditDetailsPdfBlob<T>(
   summary: { date: string; location: string; auditor: string },
   equipmentData: T[],
   equipmentColumns: ExportColumn<T>[],
-  notes: { tagNumber: string; note: string }[]
+  notes: { tagNumber: string; note: string }[],
+  jsPDF: typeof import("jspdf").jsPDF,
+  autoTable: typeof import("jspdf-autotable").default
 ): Blob {
   const doc = new jsPDF({ orientation: "landscape" });
   let startY = 14;
@@ -182,7 +181,7 @@ function buildAuditDetailsPdfBlob<T>(
 /**
  * Exports full audit details (summary + equipment table + notes) as CSV or PDF and triggers a download.
  */
-export function downloadAuditDetailsExport<T>(options: AuditDetailsExportOptions<T>): void {
+export async function downloadAuditDetailsExport<T>(options: AuditDetailsExportOptions<T>): Promise<void> {
   const { summary, equipmentData, equipmentColumns, notes, format, auditId } = options;
   const filename = getAuditDetailsFilename(auditId, format);
 
@@ -193,7 +192,11 @@ export function downloadAuditDetailsExport<T>(options: AuditDetailsExportOptions
     return;
   }
 
-  const blob = buildAuditDetailsPdfBlob(summary, equipmentData, equipmentColumns, notes);
+  // include expensive pdf library dynamically
+  const { jsPDF } = await import("jspdf");
+  const { default: autoTable } = await import("jspdf-autotable");
+
+  const blob = buildAuditDetailsPdfBlob(summary, equipmentData, equipmentColumns, notes, jsPDF, autoTable);
   triggerDownload(blob, filename);
 }
 
@@ -201,7 +204,7 @@ export function downloadAuditDetailsExport<T>(options: AuditDetailsExportOptions
  * Exports the given data as CSV or PDF and triggers a download.
  * Use this from any dashboard: pass the currently visible data, column definitions, format, and filename base.
  */
-export function downloadExport<T>(options: DownloadExportOptions<T>): void {
+export async function downloadExport<T>(options: DownloadExportOptions<T>): Promise<void> {
   const { data, columns, format, filenameBase } = options;
   const filename = getFilename(filenameBase, format);
 
@@ -212,6 +215,10 @@ export function downloadExport<T>(options: DownloadExportOptions<T>): void {
     return;
   }
 
-  const blob = buildPdfBlob(data, columns);
+  // include expensive pdf library dynamically
+  const { jsPDF } = await import("jspdf");
+  const { default: autoTable } = await import("jspdf-autotable");
+
+  const blob = buildPdfBlob(data, columns, jsPDF, autoTable);
   triggerDownload(blob, filename);
 }

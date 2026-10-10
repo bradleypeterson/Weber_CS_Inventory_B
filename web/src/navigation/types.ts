@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ComponentType, ReactNode } from "react";
 import { AuthContextType } from "../context/authContext";
 import { FilterValues } from "../filters/FilterConfiguration";
 
@@ -23,7 +23,7 @@ export interface Dashboard {
   type: "dashboard";
   availability: (auth: AuthContextType) => boolean;
   label: string;
-  element: ReactNode;
+  component: ComponentType;
   tabs?: Tab[];
   filters?: FilterName[];
 }
@@ -31,13 +31,13 @@ export interface Dashboard {
 export interface Page extends FeatureConfigurationBase {
   type: "page";
   label: string;
-  element: ReactNode;
+  component: ComponentType;
 }
 
 export interface Tab {
   type: "tab";
   label: string;
-  element: ReactNode;
+  component: ComponentType;
   filters?: FilterName[];
 }
 export interface BuiltFeatureItemBase {
@@ -55,20 +55,20 @@ export interface BuiltMenu extends BuiltFeatureItemBase {
 export interface BuiltDashboard extends BuiltFeatureItemBase {
   type: "dashboard";
   path: string;
-  element: ReactNode;
+  component: ComponentType;
   filters?: FilterName[];
 }
 
 export interface BuiltPage extends BuiltFeatureItemBase {
   type: "page";
   path: string;
-  element: ReactNode;
+  component: ComponentType;
 }
 
 export interface BuiltTab extends BuiltFeatureItemBase {
   type: "tab";
   path: string;
-  element: ReactNode;
+  component: ComponentType;
   filters?: FilterName[];
 }
 

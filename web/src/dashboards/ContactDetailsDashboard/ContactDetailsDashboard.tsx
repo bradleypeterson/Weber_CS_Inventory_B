@@ -453,3 +453,5 @@ function buildFormStructure(details: DetailsViewProps & { selectedBuildingID?: n
   ];
   return formStructure;
 }
+
+export default ContactDetailsDashboard;
