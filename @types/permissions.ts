@@ -14,10 +14,12 @@ export const PermissionId = {
   // Can manage users, including admin password resets.
   ADD_EDIT_VIEW_USERS: 6,
   // Can assign/revoke permissions on user records.
-  SET_USER_PERMISSIONS: 7
+  SET_USER_PERMISSIONS: 7,
+  // Can approve pending asset additions
+  APPROVE_ASSET_REQUESTS: 8
 } as const;
 
-// Union of all numeric permission values (1 | 2 | ... | 7).
+// Union of all numeric permission values (1 | 2 | ... | 8).
 export type PermissionIdValue = (typeof PermissionId)[keyof typeof PermissionId];
 
 // Ordered list of every defined permission ID.
@@ -29,7 +31,8 @@ export const ALL_PERMISSION_IDS = [
   PermissionId.ADD_EDIT_CONTACT_PERSONS,
   PermissionId.ADD_EDIT_LIST_OPTIONS,
   PermissionId.ADD_EDIT_VIEW_USERS,
-  PermissionId.SET_USER_PERMISSIONS
+  PermissionId.SET_USER_PERMISSIONS,
+  PermissionId.APPROVE_ASSET_REQUESTS
 ] as const;
 
 // Legacy grouping used by some UI/backend behavior to represent admin-like users.
@@ -39,7 +42,8 @@ export const ADMIN_ADJACENT_PERMISSION_IDS = [
   PermissionId.ADD_EDIT_CONTACT_PERSONS,
   PermissionId.ADD_EDIT_LIST_OPTIONS,
   PermissionId.ADD_EDIT_VIEW_USERS,
-  PermissionId.SET_USER_PERMISSIONS
+  PermissionId.SET_USER_PERMISSIONS,
+  PermissionId.APPROVE_ASSET_REQUESTS
 ] as const;
 
 // Human-readable labels keyed by permission ID.
@@ -52,7 +56,8 @@ export const PERMISSION_DISPLAY_NAMES = {
   [PermissionId.ADD_EDIT_CONTACT_PERSONS]: "Add/Edit Contact Persons",
   [PermissionId.ADD_EDIT_LIST_OPTIONS]: "Add/Edit List Options",
   [PermissionId.ADD_EDIT_VIEW_USERS]: "Add/Edit/View Users including changing user passwords",
-  [PermissionId.SET_USER_PERMISSIONS]: "Set User Permissions"
+  [PermissionId.SET_USER_PERMISSIONS]: "Set User Permissions",
+  [PermissionId.APPROVE_ASSET_REQUESTS]: "Approve Asset Requests"
 } as const satisfies Record<PermissionIdValue, string>;
 
 // True when a user has one specific permission ID.
@@ -87,7 +92,9 @@ export const PermissionCapability = {
   // System note create/list workflows.
   SYSTEM_NOTES_MANAGEMENT: "systemNotes.manage",
   // Routes that are authenticated-only and do not map to a specific permission ID.
-  READ_ONLY_AUTHENTICATED: "read.authenticated"
+  READ_ONLY_AUTHENTICATED: "read.authenticated",
+  // Approval of new asset requests.
+  ASSET_APPROVAL: "asset.approval",
 } as const;
 
 // Union of all capability string values.
@@ -122,10 +129,10 @@ export const permissionPolicyCatalog: readonly PermissionPolicyEntry[] = [
   {
     capability: PermissionCapability.CSV_IMPORT,
     intendedPermissionIds: [PermissionId.IMPORT_CSV_DATA],
-    backendRule: "Import routes require admin-adjacent scope (permissions 3-7) via asset scope helper.",
+    backendRule: "Import routes require admin-adjacent scope (permissions 3-8) via asset scope helper.",
     frontendRule: "Import dashboard visibility currently checks permission 3.",
     knownMismatches: [
-      "Backend import access accepts 3-7 while UI import entry uses permission 3.",
+      "Backend import access accepts 3-8 while UI import entry uses permission 3.",
       "Permission 3 label now uses import-only wording; enforcement remains unchanged in this phase."
     ]
   },
@@ -177,5 +184,12 @@ export const permissionPolicyCatalog: readonly PermissionPolicyEntry[] = [
     intendedPermissionIds: [],
     backendRule: "Several list/detail routes are available to any authenticated user.",
     frontendRule: "Some direct page routes remain always available in navigation config."
+  },
+  // Asset approval capability policy.
+  {
+    capability: PermissionCapability.ASSET_APPROVAL,
+    intendedPermissionIds: [PermissionId.APPROVE_ASSET_REQUESTS],
+    backendRule: "Requires permission 8 to review asset requests and add assets directly.",
+    frontendRule: "Pending approvals page is available to permission 8 users."
   }
 ];

@@ -428,7 +428,8 @@ async function seedDatabase() {
         ('Add/Edit Contact Persons', 'Add/Edit Contact Persons'),
         ('Add/Edit List Options', 'Add/Edit List Options'),
         ('Add/Edit/View Users', 'Add/Edit/View Users including changing user passwords'),
-        ('Set User Permissions', 'Set User Permissions');
+        ('Set User Permissions', 'Set User Permissions'),
+        ('Approve asset requests', 'Approve asset requests');
         `
     );
 
@@ -457,9 +458,9 @@ async function seedDatabase() {
        FROM User u
        JOIN Person p ON p.PersonID = u.PersonID
        CROSS JOIN Permission permission
-       WHERE (p.WNumber = 'W01111116' AND permission.PermissionID IN (1, 2, 3))
-          OR (p.WNumber = 'W01111117' AND permission.PermissionID IN (4, 5))
-          OR (p.WNumber = 'W01111118' AND permission.PermissionID IN (6, 7));`
+       WHERE (p.WNumber = 'W01111116' AND permission.PermissionID IN (1, 2, 3, 8))
+          OR (p.WNumber = 'W01111117' AND permission.PermissionID IN (4, 5, 8))
+          OR (p.WNumber = 'W01111118' AND permission.PermissionID IN (6, 7, 8));`
     );
 
     await pool.query(
