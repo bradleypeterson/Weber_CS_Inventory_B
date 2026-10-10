@@ -1,3 +1,4 @@
+import React, { forwardRef } from "react";
 import styles from "./IconInput.module.css";
 
 type CustomInputProps = {
@@ -10,20 +11,22 @@ type CustomInputProps = {
 
 type Props = Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange"> & CustomInputProps;
 
-export function IconInput(props: Props) {
+export const IconInput = forwardRef<HTMLInputElement, Props>((props, ref) => {
+  const { style, width, icon, value, onChange, ...rest } = props;
   return (
-    <div className={styles.container} style={{ ...props.style, width: props.width }}>
+    <div className={styles.container} style={{ ...style, width }}>
       <div className={styles.iconInputContainer}>
-        <i className={styles.icon}>{props.icon}</i>
+        <i className={styles.icon}>{icon}</i>
         <input
           type="text"
           className={styles.input}
-          {...props}
+          {...rest}
           placeholder={props.placeholder}
-          value={props.value}
-          onChange={(e) => props.onChange && props.onChange(e.target.value)}
+          value={value}
+          onChange={(e) => onChange && onChange(e.target.value)}
+          ref={ref}
         ></input>
       </div>
     </div>
   );
-}
+});

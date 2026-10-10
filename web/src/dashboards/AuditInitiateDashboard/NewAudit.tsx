@@ -1,5 +1,5 @@
 import { ArrowRight, Barcode } from "@phosphor-icons/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useSearchParams } from "react-router-dom";
 import { PermissionId, hasPermission } from "../../../../@types/permissions";
@@ -36,6 +36,24 @@ export function NewAudit() {
   const [activeInitialNote, setActiveInitialNote] = useState("");
   const queryClient = useQueryClient();
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const barcodeInputRef = useRef<HTMLInputElement>(null);
+    // Global scanner refocus listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore keyboard shortcuts
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      
+      // Ignore if user is typing in another input (like the item notes textarea)
+      const activeTag = document.activeElement?.tagName.toLowerCase();
+      if (activeTag === 'input' || activeTag === 'textarea') return;
+
+      if (barcodeInputRef.current) {
+        barcodeInputRef.current.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Function to clear all state and storage
   const clearAllState = useCallback(() => {
@@ -468,6 +486,7 @@ export function NewAudit() {
           </div>
           <div className={styles.inputRow}>
             <IconInput
+              ref={barcodeInputRef}
               placeholder="Scan Item Barcode"
               icon={<Barcode />}
               width="350px"
