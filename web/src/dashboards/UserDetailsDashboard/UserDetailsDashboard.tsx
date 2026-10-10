@@ -178,7 +178,7 @@ function UserDetailsView({ ...props }: DetailsViewProps) {
   return (
     <main className={styles.layout}>
       <div className={styles.row}>
-        <IconButton icon={<ArrowLeft />} variant="secondary" onClick={() => navigate(-1)} />
+        <IconButton icon={<ArrowLeft />} variant="secondary" onClick={() => { if (isEditing && !window.confirm("You have unsaved changes. Leave anyway?")) return; navigate(-1); }} />
         <div>
           <h2>User Details</h2>
           <p> {formData.FirstName} {formData.LastName} | {formData.WNumber}</p>
@@ -376,7 +376,7 @@ function EmptyUserDetailsView({...props }: DetailsViewProps) {
   return (
     <main className={styles.layout}>
       <div className={styles.row}>
-        <IconButton icon={<ArrowLeft />} variant="secondary" onClick={() => navigate(-1)} />
+        <IconButton icon={<ArrowLeft />} variant="secondary" onClick={() => { if (isEditing && !window.confirm("You have unsaved changes. Leave anyway?")) return; navigate(-1); }} />
         <div>
           <h2>{props.sourcePersonID === null ? "New User Details" : "Convert Contact to User"}</h2>
         </div>
