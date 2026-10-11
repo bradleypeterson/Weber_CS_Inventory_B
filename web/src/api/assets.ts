@@ -74,11 +74,23 @@ export async function fetchDeviceTypes() {
   return undefined;
 }
 
+type AddAssetResponse = {
+  approvalRequired: boolean;
+}
+
+const validateAddAssetResponse = ajv.compile<AddAssetResponse>({
+  type: "object",
+  properties: {
+    approvalRequired: { type: "boolean" }
+  },
+  required: ["approvalRequired"],
+  additionalProperties: false
+});
+
 export async function addAsset(
   params: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>
 ) {
-  const response = await post(`/assets/add`, params, validateEmptyResponse);
-  return response;
+  return post<AddAssetResponse>("/assets/add", params, validateAddAssetResponse);
 }
 
 export async function fetchAssetNotes(assetId: number): Promise<Note[]> {

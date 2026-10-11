@@ -554,6 +554,7 @@ function buildFormStructure(details: DetailsViewProps & { selectedBuildingID?: n
         { name: "Permission5", label: PERMISSION_DISPLAY_NAMES[PermissionId.ADD_EDIT_LIST_OPTIONS], inputType: "checkbox" },
         { name: "Permission6", label: PERMISSION_DISPLAY_NAMES[PermissionId.ADD_EDIT_VIEW_USERS], inputType: "checkbox" },
         { name: "Permission7", label: PERMISSION_DISPLAY_NAMES[PermissionId.SET_USER_PERMISSIONS], inputType: "checkbox" },
+        { name: "Permission8", label: PERMISSION_DISPLAY_NAMES[PermissionId.APPROVE_ASSET_REQUESTS], inputType: "checkbox"},
       ]
     });
   }
