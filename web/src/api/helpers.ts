@@ -1,6 +1,7 @@
 import { JSONSchemaType, ValidateFunction } from "ajv";
 import { APIErrorResponse, APIResponse, APISuccessResponse } from "../../../@types/api";
 import { ajv } from "../ajv";
+import { authenticatedFetch } from "./authenticatedFetch";
 const apiURL = import.meta.env.VITE_API_URL;
 
 export async function post<T>(
@@ -20,7 +21,7 @@ export async function post<T>(
     body: JSON.stringify(body)
   };
 
-  const result = await fetch(url, options);
+  const result = await authenticatedFetch(url, options);
   const response = await result.json();
 
   if (!validateApiResponse(response)) {
@@ -57,7 +58,7 @@ export async function get<T>(
     }
   };
 
-  const result = await fetch(url, options);
+  const result = await authenticatedFetch(url, options);
   const response = await result.json();
 
   if (!validateApiResponse(response)) {

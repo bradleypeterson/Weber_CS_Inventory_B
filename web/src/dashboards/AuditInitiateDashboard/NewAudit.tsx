@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useSearchParams } from "react-router-dom";
 import { PermissionId, hasPermission } from "../../../../@types/permissions";
 import { fetchEquipmentInRoom, type EquipmentDetailsRow, type ItemNote } from "../../api/audit";
+import { authenticatedFetch } from "../../api/authenticatedFetch";
 import { ItemNoteModal } from "../../components/ItemNotes/ItemNoteModal";
 import { ItemNotes } from "../../components/ItemNotes/ItemNotes";
 import { IconButton } from "../../elements/IconButton/IconButton";
@@ -117,7 +118,7 @@ export function NewAudit() {
       // Keep this endpoint as a direct fetch because its
       // "not_assigned_to_room" response does not conform to the shared APIResponse type. 
       // conforming it or the call would be more work than its worth
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/audits/scan-item`, {
+      const response = await authenticatedFetch(`${import.meta.env.VITE_API_URL}/audits/scan-item`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
