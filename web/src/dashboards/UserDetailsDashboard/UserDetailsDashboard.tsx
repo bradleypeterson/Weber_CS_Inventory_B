@@ -1,8 +1,8 @@
-import { Check, Pencil } from "@phosphor-icons/react";
+import { ArrowLeft, Check, Pencil } from "@phosphor-icons/react";
 import CryptoJS from "crypto-js";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { useSearchParams } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { Building, Department, Room } from "../../../../@types/data";
 import { ALL_PERMISSION_IDS, PERMISSION_DISPLAY_NAMES, PermissionId, hasPermission } from "../../../../@types/permissions";
 import { fetchContactDetails } from "../../api/contacts";
@@ -79,6 +79,7 @@ type DetailsViewProps = {
 function UserDetailsView({ ...props }: DetailsViewProps) {
   const linkTo = useLinkTo();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
@@ -177,6 +178,7 @@ function UserDetailsView({ ...props }: DetailsViewProps) {
   return (
     <main className={styles.layout}>
       <div className={styles.row}>
+        <IconButton icon={<ArrowLeft />} variant="secondary" onClick={() => { if (isEditing && !window.confirm("You have unsaved changes. Leave anyway?")) return; navigate(-1); }} />
         <div>
           <h2>User Details</h2>
           <p> {formData.FirstName} {formData.LastName} | {formData.WNumber}</p>
@@ -236,6 +238,7 @@ function UserDetailsView({ ...props }: DetailsViewProps) {
 
 function EmptyUserDetailsView({...props }: DetailsViewProps) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<
     Record<string, string | string[] | (string | number)[] | number[] | boolean | number>
   >({});
@@ -373,6 +376,7 @@ function EmptyUserDetailsView({...props }: DetailsViewProps) {
   return (
     <main className={styles.layout}>
       <div className={styles.row}>
+        <IconButton icon={<ArrowLeft />} variant="secondary" onClick={() => { if (isEditing && !window.confirm("You have unsaved changes. Leave anyway?")) return; navigate(-1); }} />
         <div>
           <h2>{props.sourcePersonID === null ? "New User Details" : "Convert Contact to User"}</h2>
         </div>
