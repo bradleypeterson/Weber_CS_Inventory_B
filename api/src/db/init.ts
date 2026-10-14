@@ -1,5 +1,6 @@
 import { createPool } from "mysql2/promise";
 import { DB_CONNECTION_CONFIG, DB_NAME } from "./index";
+import { createUserSessionTable } from "./sessionSchema";
 
 
 export const pool = createPool({
@@ -40,6 +41,7 @@ async function dropTables() {
     await pool.query("SET FOREIGN_KEY_CHECKS = 0;");
 
     const dropTableQueries = `
+      DROP TABLE IF EXISTS UserSession;
       DROP TABLE IF EXISTS UserPermission;
       DROP TABLE IF EXISTS PersonDepartment;
       DROP TABLE IF EXISTS Archive;
@@ -306,6 +308,7 @@ async function createTables() {
     );
     `;
     await pool.query(createTables);
+    await pool.query(createUserSessionTable);
 
     const addConstraints = `
 //     alter table Building

@@ -3,6 +3,7 @@ import sha256 from "crypto-js/sha256";
 import { ajv } from "../ajv";
 import { clearPersistedFilters } from "../filters/storage";
 import { get, post } from "./helpers";
+import { initializeSessionActivity } from "../auth/sessionActivity";
 
 export async function login(wNumber: string, password: string) {
   const userIdResponse = await get (`/auth/wNumber?wNumber=${wNumber}`, validateWNumberResponse);
@@ -20,6 +21,7 @@ export async function login(wNumber: string, password: string) {
   localStorage.setItem("token", loginResponse.data.token);
   localStorage.setItem("permissions", JSON.stringify(loginResponse.data.permissions));
   localStorage.setItem("personID", loginResponse.data.personID.toString());
+  initializeSessionActivity(loginResponse.data.token);
   return loginResponse;
 }
 
