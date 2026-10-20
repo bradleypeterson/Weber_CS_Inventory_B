@@ -11,10 +11,10 @@ import { IconInput } from "../../elements/IconInput/IconInput";
 import { Modal } from "../../elements/Modal/Modal";
 import { downloadExport, type ExportColumn } from "../../export/downloadExport";
 import { useFilters } from "../../filters/useFilters";
+import { useAuth } from "../../hooks/useAuth";
 import { useLinkTo } from "../../navigation/useLinkTo";
+import { ASSET_PAGE_SIZES, AssetPageSize, loadAssetSearchState, saveAssetSearchState } from "../../state/assetSearchStorage";
 import styles from "./AssetsSearchDashboard.module.css";
-
-const PAGE_SIZE_OPTIONS: Array<10 | 25 | 50 | 100> = [10, 25, 50, 100];
 
 const ASSETS_EXPORT_COLUMNS: ExportColumn<AssetDetails>[] = [
   { label: "Equipment ID", getValue: (row) => String(row.EquipmentID) },
@@ -49,9 +49,11 @@ const ASSETS_EXPORT_COLUMNS: ExportColumn<AssetDetails>[] = [
 ];
 
 export function AssetsSearchDashboard() {
-  const [searchText, setSearchText] = useState("");
+  const { personID } = useAuth();
+  const [savedState] = useState(() => loadAssetSearchState(personID));
+  const [searchText, setSearchText] = useState(savedState.searchText);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState<10 | 25 | 50 | 100>(10);
+  const [pageSize, setPageSize] = useState<AssetPageSize>(savedState.pageSize);
   const [selectedAssets, setSelectedAssets] = useState<number[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const { data, refetch } = useQuery("AssetsList", () => fetchAssetOverviewList());
@@ -60,6 +62,10 @@ export function AssetsSearchDashboard() {
   const [alert, setAlert] = useState("");
   const { filters } = useFilters();
   const linkTo = useLinkTo();
+
+  useEffect(() => {
+    saveAssetSearchState(personID, { searchText, pageSize });
+  }, [personID, searchText, pageSize]);
 
   const filteredData = useMemo(() => {
     const selectedAssetClasses = filters["Asset Class"] ?? [];
@@ -247,9 +253,9 @@ export function AssetsSearchDashboard() {
           <select
             id="assets-search-page-size"
             value={pageSize}
-            onChange={(e) => setPageSize(Number(e.target.value) as 10 | 25 | 50 | 100)}
+            onChange={(e) => setPageSize(Number(e.target.value) as AssetPageSize)}
           >
-            {PAGE_SIZE_OPTIONS.map((size) => (
+            {ASSET_PAGE_SIZES.map((size) => (
               <option key={size} value={size}>
                 {size}
               </option>
