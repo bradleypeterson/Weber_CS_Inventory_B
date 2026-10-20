@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useState } from "react";
 import { clearPersistedFilters } from "../filters/storage";
+import { clearAssetSearchState } from "../state/assetSearchStorage";
 import { AuthContext } from "./authContext";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -17,6 +18,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   function logout() {
+    clearAssetSearchState();
     setPermissions([]);
     setToken("");
     setPersonID(0);
