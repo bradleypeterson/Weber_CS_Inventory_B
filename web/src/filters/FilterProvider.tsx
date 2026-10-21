@@ -85,14 +85,8 @@ export function FilterProvider({ children }: { children: ReactNode }) {
   const { dashboard } = useDashboard();
   const routeKey = dashboard?.key ?? FALLBACK_ROUTE_KEY;
 
-  const [filtersByRoute, setFiltersByRoute] = useState<FiltersByRoute>({});
-  const [selectedFiltersByRoute, setSelectedFiltersByRoute] = useState<FiltersByRoute>({});
-
-  useEffect(function syncPreviousFilter() {
-    const storedFiltersByRoute = loadStoredFiltersByRoute();
-    setFiltersByRoute(storedFiltersByRoute);
-    setSelectedFiltersByRoute(storedFiltersByRoute);
-  }, []);
+  const [filtersByRoute, setFiltersByRoute] = useState<FiltersByRoute>(loadStoredFiltersByRoute);
+  const [selectedFiltersByRoute, setSelectedFiltersByRoute] = useState<FiltersByRoute>(filtersByRoute);
 
   useEffect(
     function persistFiltersByRoute() {

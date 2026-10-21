@@ -1,5 +1,6 @@
 import { MagnifyingGlass, Trash } from "@phosphor-icons/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import isEqual from "lodash.isequal";
 import { useQuery } from "react-query";
 import { AssetDetails, AssetOverview } from "../../../../@types/data";
 import { archiveAssets, fetchAssetOverviewList, fetchAssetsExport } from "../../api/assets";
@@ -52,20 +53,21 @@ export function AssetsSearchDashboard() {
   const { personID } = useAuth();
   const [savedState] = useState(() => loadAssetSearchState(personID));
   const [searchText, setSearchText] = useState(savedState.searchText);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(savedState.page);
   const [pageSize, setPageSize] = useState<AssetPageSize>(savedState.pageSize);
   const [selectedAssets, setSelectedAssets] = useState<number[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const { data, refetch } = useQuery("AssetsList", () => fetchAssetOverviewList());
+  const { data, refetch, isSuccess, isFetching } = useQuery("AssetsList", () => fetchAssetOverviewList());
   const [isArchiving, setIsArchiving] = useState(false);
   const [error, setError] = useState("");
   const [alert, setAlert] = useState("");
   const { filters } = useFilters();
+  const previousFilters = useRef(filters);
   const linkTo = useLinkTo();
 
   useEffect(() => {
-    saveAssetSearchState(personID, { searchText, pageSize });
-  }, [personID, searchText, pageSize]);
+    saveAssetSearchState(personID, { searchText, page, pageSize });
+  }, [personID, searchText, page, pageSize]);
 
   const filteredData = useMemo(() => {
     const selectedAssetClasses = filters["Asset Class"] ?? [];
@@ -95,14 +97,17 @@ export function AssetsSearchDashboard() {
   );
 
   useEffect(() => {
-    if (page > totalPages) {
+    if (isSuccess && !isFetching && data !== undefined && page > totalPages) {
       setPage(totalPages);
     }
-  }, [page, totalPages]);
+  }, [page, totalPages, isSuccess, isFetching, data]);
 
   useEffect(() => {
-    setPage(1);
-  }, [searchText, filters, data, pageSize]);
+    if (!isEqual(previousFilters.current, filters)) {
+      previousFilters.current = filters;
+      setPage(1);
+    }
+  }, [filters]);
 
   const inspectDisabled = useMemo(() => selectedAssets.length !== 1, [selectedAssets]);
   const deleteDisabled = useMemo(() => selectedAssets.length === 0, [selectedAssets]);
@@ -234,7 +239,10 @@ export function AssetsSearchDashboard() {
             width="200px"
             placeholder="search"
             value={searchText}
-            onChange={(val) => setSearchText(val.toLowerCase())}
+            onChange={(val) => {
+              setSearchText(val.toLowerCase());
+              setPage(1);
+            }}
           />
           <button
             type="button"
@@ -253,7 +261,10 @@ export function AssetsSearchDashboard() {
           <select
             id="assets-search-page-size"
             value={pageSize}
-            onChange={(e) => setPageSize(Number(e.target.value) as AssetPageSize)}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value) as AssetPageSize);
+              setPage(1);
+            }}
           >
             {ASSET_PAGE_SIZES.map((size) => (
               <option key={size} value={size}>
