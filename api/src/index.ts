@@ -5,6 +5,7 @@ import express, { json } from "express";
 import morgan from "morgan";
 import { assetClassRouter } from "./assetClass";
 import { assetRouter } from "./assets";
+import { analyticsRouter } from "./analytics";
 import { auditRouter } from "./audit";
 import { authRouter } from "./auth";
 import { validateToken } from "./auth/validateToken";
@@ -53,6 +54,7 @@ app.use("/auth", authRouter);
 
 // Routes below this line require the user to be logged in
 app.use(validateToken);
+app.use("/analytics", analyticsRouter);
 app.use("/assets", assetRouter);
 app.use("/asset-classes", assetClassRouter);
 app.use("/device-types", deviceTypeRouter);

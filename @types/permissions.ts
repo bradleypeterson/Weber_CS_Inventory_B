@@ -65,6 +65,12 @@ export function hasAnyPermission(permissions: readonly number[], permissionIds: 
   return permissionIds.some((permissionId) => permissions.includes(permissionId));
 }
 
+// Analytics is available to users with at least one assigned application permission.
+// This controls feature access; asset scope still controls which records are counted.
+export function canViewAnalytics(permissions: readonly number[]) {
+  return hasAnyPermission(permissions, ALL_PERMISSION_IDS);
+}
+
 // Capability keys are domain-level permission intents (not DB permission IDs).
 // These are used to map behavior/policy across backend and frontend.
 export const PermissionCapability = {
