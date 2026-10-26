@@ -87,6 +87,12 @@ The initial password is `a`, unless changed in the local database.
 | W01111118 | User and permission management |
 | W01111119 | No assigned permissions |
 
+Analytics access requires at least one assigned application permission (IDs 1–7).
+Users without permissions, including W01111119, do not see the Analytics route;
+direct calls to `GET /analytics/assets` return 403. Allowed users retain the existing
+asset scope: permissions 1–2 are limited to assigned departments, while any of
+permissions 3–7 grants the existing admin-equivalent scope across departments.
+
 The five baseline contacts (W01111120–W01111124) are
 contact-only records and cannot log in.
 

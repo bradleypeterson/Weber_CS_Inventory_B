@@ -1,0 +1,33 @@
+.dashboard { padding: 2rem; overflow: auto; min-width: 0; }
+.description { color: var(--off-white); margin-top: 0.5rem; }
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-block: 1.5rem 2rem; }
+.card, .panel { background: var(--secondary-background); border: 1px solid var(--gray); border-radius: 10px; padding: 1.5rem; min-width: 0; }
+.primaryCard { border-top: 3px solid var(--primary); }
+.card dt { color: var(--off-white); }
+.card dd { font-size: 2.5rem; font-weight: 700; font-variant-numeric: tabular-nums; margin-block: 0.5rem; line-height: 1.2; }
+.card .hint, .caption { color: var(--off-white); font-size: 0.85rem; font-weight: 400; }
+.breakdowns { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 1.5rem; align-items: start; }
+.panel h2 { font-size: 1.2rem; }
+.caption { margin-top: 0.25rem; }
+.chart { list-style: none; display: flex; flex-direction: column; gap: 1.25rem; margin-top: 1.5rem; max-height: 30rem; overflow-y: auto; padding-right: 0.5rem; }
+.barLabel { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-bottom: 0.4rem; overflow-wrap: anywhere; }
+.barValue { flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.barValue small { color: var(--off-white); }
+.track { height: 0.75rem; border-radius: 4px; background: var(--gray-blue); overflow: hidden; }
+.bar { height: 100%; border-radius: inherit; background: var(--primary); }
+.details { margin-top: 1.5rem; }
+.details summary { cursor: pointer; color: var(--off-white); width: fit-content; }
+.details summary:focus-visible { outline: 2px solid var(--white); outline-offset: 4px; }
+.chart:focus-visible { outline: 2px solid var(--white); outline-offset: 4px; }
+.table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+.table caption { text-align: left; font-weight: 600; }
+.table th, .table td { padding: 0.75rem 0.5rem; border-bottom: 1px solid var(--gray); text-align: left; overflow-wrap: anywhere; }
+.table tbody th { font-weight: normal; }
+.table th:last-child, .table td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+.empty { padding: 1.5rem; background: var(--secondary-background); border-radius: 10px; }
+@media (max-width: 700px) {
+  .dashboard { padding: 1rem; }
+  .cards { grid-template-columns: 1fr; }
+  .panel { padding: 1rem; }
+  .barLabel { flex-wrap: wrap; gap: 0.25rem 1rem; }
+}
