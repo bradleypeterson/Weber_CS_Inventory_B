@@ -27,13 +27,14 @@ export function DepartmentFilter() {
 
   const options = useMemo(() => {
     if (!data) return undefined;
+    if (shouldScopeByUserDepartments && !userDetails) return undefined;
 
     const scopedDepartments = shouldScopeByUserDepartments
       ? data.filter((department) => userDetails?.DepartmentID.includes(department.DepartmentID))
       : data;
 
     return scopedDepartments.filter(isListOptionActive).map((row) => ({ label: row.Name, value: row.DepartmentID }));
-  }, [data, shouldScopeByUserDepartments, userDetails?.DepartmentID]);
+  }, [data, shouldScopeByUserDepartments, userDetails]);
 
   const sanitizeDepartmentValues = useMemo(
     () => (values: number[] | undefined) => {

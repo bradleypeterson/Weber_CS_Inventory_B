@@ -1,5 +1,7 @@
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { useDashboard } from "../navigation/useDashboard";
+import { useAuth } from "../hooks/useAuth";
+import { loadAssetSearchState, saveAssetSearchState } from "../state/assetSearchStorage";
 import { FilterValues } from "./FilterConfiguration";
 import { FilterContext } from "./FilterContext";
 import { clearPersistedFilters, FILTERS_BY_ROUTE_STORAGE_KEY, LEGACY_FILTERS_STORAGE_KEY } from "./storage";
@@ -7,6 +9,7 @@ import { clearPersistedFilters, FILTERS_BY_ROUTE_STORAGE_KEY, LEGACY_FILTERS_STO
 type FiltersByRoute = Record<string, FilterValues>;
 
 const FALLBACK_ROUTE_KEY = "__global__";
+const ASSET_SEARCH_ROUTE_KEY = "assets/search";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -52,6 +55,7 @@ function parseFiltersByRoute(raw: unknown): FiltersByRoute | undefined {
 
   const parsed: FiltersByRoute = {};
   for (const [routeKey, rawFilters] of Object.entries(raw)) {
+    if (routeKey === ASSET_SEARCH_ROUTE_KEY) continue;
     const routeFilters = parseFilterValues(rawFilters);
     if (routeFilters === undefined) continue;
     parsed[routeKey] = routeFilters;
@@ -82,23 +86,43 @@ function loadStoredFiltersByRoute(): FiltersByRoute {
 }
 
 export function FilterProvider({ children }: { children: ReactNode }) {
+  const { token, personID } = useAuth();
   const { dashboard } = useDashboard();
   const routeKey = dashboard?.key ?? FALLBACK_ROUTE_KEY;
 
-  const [filtersByRoute, setFiltersByRoute] = useState<FiltersByRoute>(loadStoredFiltersByRoute);
-  const [selectedFiltersByRoute, setSelectedFiltersByRoute] = useState<FiltersByRoute>(filtersByRoute);
+  const [initialState] = useState(() => {
+    if (!token || personID <= 0) return { applied: {}, selected: {} };
+    const stored = loadStoredFiltersByRoute();
+    const assetSearch = loadAssetSearchState(personID);
+    return {
+      applied: { ...stored, [ASSET_SEARCH_ROUTE_KEY]: assetSearch.filters },
+      selected: { ...stored, [ASSET_SEARCH_ROUTE_KEY]: assetSearch.selectedFilters }
+    };
+  });
+  const [filtersByRoute, setFiltersByRoute] = useState<FiltersByRoute>(initialState.applied);
+  const [selectedFiltersByRoute, setSelectedFiltersByRoute] = useState<FiltersByRoute>(initialState.selected);
 
   useEffect(
     function persistFiltersByRoute() {
-      const hasSavedFilters = Object.keys(filtersByRoute).length > 0;
-      if (hasSavedFilters) {
-        localStorage.setItem(FILTERS_BY_ROUTE_STORAGE_KEY, JSON.stringify(filtersByRoute));
-        localStorage.removeItem(LEGACY_FILTERS_STORAGE_KEY);
-      } else {
-        clearPersistedFilters();
+      if (!token || personID <= 0) return;
+      saveAssetSearchState(personID, {
+        filters: filtersByRoute[ASSET_SEARCH_ROUTE_KEY] ?? {},
+        selectedFilters: selectedFiltersByRoute[ASSET_SEARCH_ROUTE_KEY] ?? {}
+      });
+      const sharedFilters = { ...filtersByRoute };
+      delete sharedFilters[ASSET_SEARCH_ROUTE_KEY];
+      try {
+        if (Object.keys(sharedFilters).length > 0) {
+          localStorage.setItem(FILTERS_BY_ROUTE_STORAGE_KEY, JSON.stringify(sharedFilters));
+          localStorage.removeItem(LEGACY_FILTERS_STORAGE_KEY);
+        } else {
+          clearPersistedFilters();
+        }
+      } catch {
+        // Filters remain usable when browser storage is unavailable.
       }
     },
-    [filtersByRoute]
+    [filtersByRoute, selectedFiltersByRoute, token, personID]
   );
 
   const filters = useMemo(() => filtersByRoute[routeKey] ?? {}, [filtersByRoute, routeKey]);
