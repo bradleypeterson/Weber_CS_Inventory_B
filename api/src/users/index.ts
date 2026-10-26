@@ -1,28 +1,21 @@
-import { type Request, type Response, Router } from "express";
-import { getUserDetails } from "../db/procedures/users";
+import { Router } from "express";
+import { PermissionId } from "../../../@types/permissions";
+import { requirePermission } from "../auth/requirePermission";
 import { addUser } from "./add";
 import { archiveUsers } from "./archive";
+import { userDetails } from "./details";
 import { listUsers } from "./list";
 import { promoteContactToUser } from "./promote";
 import { updateUser } from "./update";
+
 export const userRouter = Router();
 
-userRouter.get("/list", listUsers);
-userRouter.post("/archive", archiveUsers);
-userRouter.post("/:id/update", updateUser);
-userRouter.post("/add", addUser);
-userRouter.post("/promote", promoteContactToUser);
-userRouter.get("/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
-  try {
-    const user = await getUserDetails(Number(id));
-    if (user === undefined) {
-      res.status(404).json({ status: "error", error: { message: "User does not exist" } });
-      return;
-    }
-    res.json({ status: "success", data: user });
-  } catch (error) {
-    console.error(`Error in getUserDetails endpoint:`, error);
-    res.status(500).json({ status: "error", error: { message: "Could not get user details" } });
-  }
-});
+const canManageUsers = requirePermission(PermissionId.ADD_EDIT_VIEW_USERS);
+const canSetUserPermissions = requirePermission(PermissionId.SET_USER_PERMISSIONS);
+
+userRouter.get("/list", canManageUsers, listUsers);
+userRouter.get("/:id", canManageUsers, userDetails);
+userRouter.post("/archive", canManageUsers, archiveUsers);
+userRouter.post("/:id/update", canManageUsers, updateUser);
+userRouter.post("/add", canManageUsers, canSetUserPermissions, addUser);
+userRouter.post("/promote", canManageUsers, canSetUserPermissions, promoteContactToUser);
