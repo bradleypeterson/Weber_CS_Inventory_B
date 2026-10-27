@@ -207,3 +207,39 @@ it("renders and navigates when session storage is blocked", async () => {
   fireEvent.click(screen.getByRole("button", { name: ">" }));
   await screen.findByText("Page 2 of 14 (140 results)");
 });
+
+it("saves a search created through the UI and restores it after navigating away", async () => {
+  mount();
+  await screen.findByText("Page 1 of 14 (140 results)");
+  fireEvent.change(screen.getByPlaceholderText("search"), { target: { value: "asset" } });
+  fireEvent.click(screen.getByText("Choose Computing"));
+  fireEvent.click(screen.getByText("Apply filters"));
+  fireEvent.change(screen.getByLabelText("Rows:"), { target: { value: "25" } });
+  await screen.findByText("Page 1 of 4 (100 results)");
+  fireEvent.click(screen.getByRole("button", { name: ">" }));
+  fireEvent.click(screen.getByRole("button", { name: ">" }));
+  await screen.findByText("Page 3 of 4 (100 results)");
+  expect(loadAssetSearchState(7)).toMatchObject({
+    searchText: "asset", page: 3, pageSize: 25,
+    filters: { Department: [1] }, selectedFilters: { Department: [1] }
+  });
+  fireEvent.click(screen.getAllByRole("checkbox")[0]);
+  fireEvent.click(screen.getByRole("button", { name: "Inspect" }));
+  fireEvent.click(await screen.findByRole("button", { name: "Back from details" }));
+  await screen.findByText("Page 3 of 4 (100 results)");
+  expect(screen.getByText("asset-051")).toBeTruthy();
+});
+
+it("keeps the saved page after a rejected background request and recovers on retry", async () => {
+  seedSearch();
+  const { client } = mount();
+  await screen.findByText("Page 3 of 4 (100 results)");
+  vi.spyOn(console, "error").mockImplementation(() => undefined);
+  api.list.mockRejectedValueOnce(new Error("network unavailable"));
+  await act(async () => { await client.invalidateQueries("AssetsList"); });
+  expect(client.getQueryState("AssetsList")?.status).toBe("error");
+  expect(loadAssetSearchState(7).page).toBe(3);
+  api.list.mockResolvedValue(rows);
+  await act(async () => { await client.invalidateQueries("AssetsList"); });
+  await screen.findByText("Page 3 of 4 (100 results)");
+});
