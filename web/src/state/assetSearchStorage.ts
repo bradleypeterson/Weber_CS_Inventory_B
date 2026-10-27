@@ -12,6 +12,7 @@ export type AssetSearchState = {
 };
 
 const fallback = new Map<number, AssetSearchState>();
+const memoryOnly = new Set<number>();
 
 function defaults(): AssetSearchState {
   return { searchText: "", page: 1, pageSize: 10, filters: {}, selectedFilters: {} };
@@ -43,6 +44,7 @@ function parse(raw: unknown): AssetSearchState {
 
 export function loadAssetSearchState(personID: number): AssetSearchState {
   if (!Number.isSafeInteger(personID) || personID <= 0) return defaults();
+  if (memoryOnly.has(personID)) return fallback.get(personID) ?? defaults();
   try {
     const stored = sessionStorage.getItem(`${ASSET_SEARCH_STORAGE_PREFIX}${personID}`);
     try {
@@ -63,11 +65,13 @@ export function saveAssetSearchState(personID: number, changes: Partial<AssetSea
     sessionStorage.setItem(`${ASSET_SEARCH_STORAGE_PREFIX}${personID}`, JSON.stringify(state));
   } catch {
     // Keep navigation usable when browser storage is unavailable.
+    memoryOnly.add(personID);
   }
 }
 
 export function clearAssetSearchState(): void {
   fallback.clear();
+  memoryOnly.clear();
   try {
     for (let index = sessionStorage.length - 1; index >= 0; index--) {
       const key = sessionStorage.key(index);
