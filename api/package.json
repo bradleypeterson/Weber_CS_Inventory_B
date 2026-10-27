@@ -7,6 +7,8 @@
     "dev": "nodemon ./src/index.ts --ext \"ts,js,json\"",
     "dbinit": "ts-node src/db/init.ts",
     "dbseed": "ts-node src/db/seed_data.ts",
+    "dbseed:analytics": "ts-node src/db/seed_analytics.ts",
+    "db:add-session-table": "ts-node src/db/add_session_table.ts",
     "build": "tsc"
   },
   "author": "",

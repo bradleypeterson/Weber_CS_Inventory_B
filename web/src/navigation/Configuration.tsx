@@ -1,8 +1,9 @@
 import { Briefcase, Package, User, UserGear } from "@phosphor-icons/react";
 import { lazy } from "react";
-import { PermissionId, hasPermission } from "../../../@types/permissions";
+import { PermissionId, hasPermission, canViewAnalytics } from "../../../@types/permissions";
 import { Login } from "../dashboards/Login/Login";
 import { RouteConfiguration } from "./types";
+const AnalyticsDashboard = lazy(() => import("../dashboards/AnalyticsDashboard/AnalyticsDashboard"));
 const AssetsAddDashboard = lazy(
   () => import("../dashboards/AssetsAddDashboard/AssetsAddDashboard")
 );
@@ -73,6 +74,7 @@ export const configuration: RouteConfiguration = [
         component: AssetsSearchDashboard,
         filters: ["Department", "Asset Class"]
       },
+      { type: "dashboard", availability: ({ permissions }) => canViewAnalytics(permissions), label: "Analytics", component: AnalyticsDashboard },
       { type: "dashboard", availability: () => true, label: "Asset Details", component: AssetsDetailsDashboard },
       {
         type: "dashboard",

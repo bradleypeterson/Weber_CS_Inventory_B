@@ -1,4 +1,5 @@
 import { DB_NAME, pool } from "./index";
+import { seedAnalyticsAssets } from "./analyticsSeed";
 
 async function seedDatabase() {
   try {
@@ -561,6 +562,7 @@ async function seedDatabase() {
         `
     );
 
+    await seedAnalyticsAssets(pool);
     console.log("Dummy data succesfully inserted");
   } catch (error) {
     console.error("Error: ", error);
