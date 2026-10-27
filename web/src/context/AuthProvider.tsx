@@ -5,6 +5,7 @@ import { authenticatedFetch, sessionUnauthorizedEvent } from "../api/authenticat
 import { Button } from "../elements/Button/Button";
 import styles from "./SessionWarning.module.css";
 import { clearPersistedFilters } from "../filters/storage";
+import { clearAssetSearchState } from "../state/assetSearchStorage";
 import { AuthContext } from "./authContext";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -39,6 +40,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
+    clearAssetSearchState();
+
     const currentToken = localStorage.getItem("token");
     if (currentToken) {
       void fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
@@ -46,8 +49,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headers: { Authorization: `Bearer ${currentToken}` },
         credentials: "include",
         keepalive: true
-      }).catch(() => { /* Local logout still completes if the API is unavailable. */ });
+      }).catch(() => {
+        // Local logout still completes if the API is unavailable.
+      });
     }
+
     setPermissions([]);
     setToken("");
     setPersonID(0);
