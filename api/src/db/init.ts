@@ -58,6 +58,7 @@ async function dropTables() {
       DROP TABLE IF EXISTS AuditStatus;
       DROP TABLE IF EXISTS AssetClass;
       DROP TABLE IF EXISTS Department;
+      DROP TABLE IF EXISTS ApprovalRequest;
       DROP TABLE IF EXISTS User;
       DROP TABLE IF EXISTS Permission;
       DROP TABLE IF EXISTS SystemNote;
@@ -305,6 +306,25 @@ async function createTables() {
       PerformedBy INT,
       PerformedAt DATETIME DEFAULT NOW(),
       FOREIGN KEY(PerformedBy) REFERENCES User(UserID)
+    );
+
+    create table if not exists ApprovalRequest(
+      RequestID INT PRIMARY KEY AUTO_INCREMENT,
+      RequestType VARCHAR(50) NOT NULL,
+      Payload JSON NOT NULL,
+      Status VARCHAR(20) NOT NULL DEFAULT 'pending',
+      RequestedBy INT NOT NULL,
+      RequestedAt DATETIME NOT NULL DEFAULT NOW(),
+      ReviewedBy INT NULL,
+      ReviewedAt DATETIME NULL,
+      ReviewNote TEXT NULL,
+      ResultEntityType VARCHAR(50) NULL,
+      ResultEntityID INT NULL,
+
+      INDEX idx_ApprovalRequest_Status_RequestedAt (Status, RequestedAt),
+
+      FOREIGN KEY (RequestedBy) REFERENCES User(UserID),
+      FOREIGN KEY (ReviewedBy) REFERENCES User(UserID)
     );
     `;
     await pool.query(createTables);

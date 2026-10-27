@@ -6,14 +6,19 @@ import { scanItem } from "./scan-item";
 import { submitAudit } from "./submit";
 import { updateAuditNotes } from "./update-notes";
 
+import { PermissionId } from "../../../@types/permissions";
+import { requirePermission } from "../auth/requirePermission";
+
 export const auditRouter = Router();
 
+const canManageAudits = requirePermission(PermissionId.ADD_EDIT_ASSETS);
+
 // Define routes with proper typing
-auditRouter.post("/initiate", initiateAudit as RequestHandler);
-auditRouter.get("/equipment/:roomId", getEquipmentForRoom as RequestHandler);
-auditRouter.post("/scan-item", scanItem as RequestHandler);
-auditRouter.post("/submit", submitAudit as RequestHandler);
-auditRouter.post("/update-notes/:id", updateAuditNotes as RequestHandler);
-auditRouter.get("/history", getAuditHistory as RequestHandler);
-auditRouter.get("/history/:id", getAuditDetails as RequestHandler);
-auditRouter.get("/notes/:id", getAuditNotes as RequestHandler);
+auditRouter.post("/initiate", canManageAudits, initiateAudit as RequestHandler);
+auditRouter.get("/equipment/:roomId", canManageAudits, getEquipmentForRoom as RequestHandler);
+auditRouter.post("/scan-item", canManageAudits, scanItem as RequestHandler);
+auditRouter.post("/submit", canManageAudits, submitAudit as RequestHandler);
+auditRouter.post("/update-notes/:id", canManageAudits, updateAuditNotes as RequestHandler);
+auditRouter.get("/history", canManageAudits, getAuditHistory as RequestHandler);
+auditRouter.get("/history/:id", canManageAudits, getAuditDetails as RequestHandler);
+auditRouter.get("/notes/:id", canManageAudits, getAuditNotes as RequestHandler);

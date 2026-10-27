@@ -55,6 +55,9 @@ const UserDetailsDashboard = lazy(
 const UserSearchDashboard = lazy(
   () => import("../dashboards/UserSearchDashboard/UserSearchDashboard")
 );
+const AssetApproveDashboard = lazy(
+  () => import("../dashboards/AssetApproveDashboard/AssetApproveDashboard")
+);
 
 
 /* 
@@ -158,6 +161,12 @@ export const configuration: RouteConfiguration = [
         label: "System Notes",
         component: SystemNotesDashboard,
         filters: ["Entity Type", "Date", "Performed By"]
+      },
+      {
+        type: "dashboard",
+        availability: ({ permissions }) => hasPermission(permissions, PermissionId.APPROVE_ASSET_REQUESTS),
+        label: "Approve Assets",
+        component: AssetApproveDashboard
       }
     ],
     availability: () => true
