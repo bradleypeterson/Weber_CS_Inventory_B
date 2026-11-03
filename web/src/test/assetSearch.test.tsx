@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "react-query";
+import { QueryClient, useQueryClient } from "react-query";
 import { MemoryRouter, Route, Routes, useLocation, useNavigate } from "react-router";
 import { beforeEach, expect, it, vi } from "vitest";
 import type { AssetOverview } from "../../../@types/data";
@@ -76,11 +76,16 @@ function Session() {
 }
 
 function mount(path = "/assets/search") {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false } } });
-  const view = render(<StrictMode><QueryClientProvider client={client}><AuthProvider>
-    <MemoryRouter initialEntries={[path]}><Session /></MemoryRouter>
-  </AuthProvider></QueryClientProvider></StrictMode>);
-  return { ...view, client };
+  let client: QueryClient;
+  function TestSession() {
+    client = useQueryClient();
+    client.setDefaultOptions({ queries: { retry: false, refetchOnWindowFocus: false } });
+    return <Session />;
+  }
+  const view = render(<StrictMode><MemoryRouter initialEntries={[path]}>
+    <AuthProvider><TestSession /></AuthProvider>
+  </MemoryRouter></StrictMode>);
+  return { ...view, get client() { return client; } };
 }
 
 function seedSearch() {
