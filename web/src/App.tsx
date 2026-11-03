@@ -66,11 +66,11 @@ const basePath = import.meta.env.VITE_BASE || "/";
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter basename={basePath}>
+    <BrowserRouter basename={basePath}>
+      <AuthProvider>
         <Layout />
-      </BrowserRouter>
-    </AuthProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
