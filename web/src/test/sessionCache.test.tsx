@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, useQuery, useQueryClient } from "react-query";
 import { expect, it, vi } from "vitest";
 import { AuthProvider } from "../context/AuthProvider";
@@ -54,4 +54,28 @@ it("clears the query and mutation caches before another account signs in", async
   expect(screen.queryByText("First user's asset")).toBeNull();
   await act(async () => finishSecond("Second user's asset"));
   await screen.findByText("Second user's asset");
+});
+
+it("ignores a pending query and isolates late callbacks after logout in another tab", async () => {
+  let finishFirst!: (value: string) => void;
+  const loadAssets = vi.fn((token: string) => token === "first-token"
+    ? new Promise<string>(resolve => { finishFirst = resolve; })
+    : Promise.resolve("Second user's asset"));
+  const clients = mountSession(loadAssets);
+  await waitFor(() => expect(loadAssets).toHaveBeenCalledWith("first-token"));
+  const previous = clients.get("first-token")!;
+
+  act(() => {
+    localStorage.removeItem("token");
+    window.dispatchEvent(new StorageEvent("storage", { key: "token", storageArea: localStorage }));
+  });
+  expect(previous.getQueryCache().getAll()).toHaveLength(0);
+  fireEvent.click(screen.getByText("Sign in as second user"));
+  await screen.findByText("Second user's asset");
+
+  await act(async () => finishFirst("First user's late asset"));
+  expect(previous.getQueryData("AssetsList")).toBeUndefined();
+  act(() => previous.setQueryData("AssetsList", "Late callback for first user"));
+  expect(clients.get("second-token")!.getQueryData("AssetsList")).toBe("Second user's asset");
+  expect(screen.queryByText(/First user's late asset|Late callback/)).toBeNull();
 });
