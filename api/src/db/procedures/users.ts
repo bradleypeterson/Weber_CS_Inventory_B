@@ -139,25 +139,21 @@ export async function dbUpdateUser(
       for (const permissionID of updates.Permissions) {
         await pool.query(permissionsInsertQuery, [userID, permissionID]);
       }
-    }
-     
-    if (Array.isArray(updates.Permissions) && updates.Permissions.length > 0) {
-      const placeholders = updates.Permissions.map(() => '?').join(','); // Create placeholders for the array
-      
-      const permissionsRemoveQuery = `
-        DELETE FROM UserPermission
-        WHERE UserID = ? AND PermissionID NOT IN (${placeholders});
-      `;
-      // Execute the query with userID and the permissions array
-      await pool.query(permissionsRemoveQuery, [userID, ...updates.Permissions]);
-    } else {
-      // If no permissions are provided, delete all permissions for the user
-      const permissionsRemoveQuery = `
-        DELETE FROM UserPermission
-        WHERE UserID = ?;
-      `;
-      await pool.query(permissionsRemoveQuery, [userID]);
-      console.log("All permissions removed for UserID:", userID);
+
+      if (updates.Permissions.length > 0) {
+        const placeholders = updates.Permissions.map(() => '?').join(',');
+        const permissionsRemoveQuery = `
+          DELETE FROM UserPermission
+          WHERE UserID = ? AND PermissionID NOT IN (${placeholders});
+        `;
+        await pool.query(permissionsRemoveQuery, [userID, ...updates.Permissions]);
+      } else {
+        const permissionsRemoveQuery = `
+          DELETE FROM UserPermission
+          WHERE UserID = ?;
+        `;
+        await pool.query(permissionsRemoveQuery, [userID]);
+      }
     }
 
   } catch (error) {

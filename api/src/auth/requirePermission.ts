@@ -26,6 +26,27 @@ export function requirePermission(permissionId: PermissionIdValue): RequestHandl
   };
 }
 
+export function requirePermissionForBodyField(
+  permissionId: PermissionIdValue,
+  fieldName: string
+): RequestHandler {
+  const permissionCheck = requirePermission(permissionId);
+
+  return (req, res, next) => {
+    const body: unknown = req.body;
+    if (
+      typeof body !== "object" ||
+      body === null ||
+      !Object.prototype.hasOwnProperty.call(body, fieldName)
+    ) {
+      next();
+      return;
+    }
+
+    permissionCheck(req, res, next);
+  };
+}
+
 export function requirePermissionOrSelf(
   permissionId: PermissionIdValue,
   personIdParam = "id"

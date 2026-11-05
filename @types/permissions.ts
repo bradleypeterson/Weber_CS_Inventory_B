@@ -169,17 +169,14 @@ export const permissionPolicyCatalog: readonly PermissionPolicyEntry[] = [
   {
     capability: PermissionCapability.USER_MANAGEMENT,
     intendedPermissionIds: [PermissionId.ADD_EDIT_VIEW_USERS],
-    backendRule: "User list, archive, and update routes require permission 6. Users can view their own details; viewing another user's details requires permission 6. Add and promote routes require permissions 6 and 7. Admin password reset requires permission 6.",
+    backendRule: "User list, archive, and update routes require permission 6. Permission 7 is additionally required when an update supplies the Permissions field. Users can view their own details; viewing another user's details requires permission 6. Add and promote routes require permissions 6 and 7. Admin password reset requires permission 6.",
     frontendRule: "User dashboard/edit actions use permission 6.",
-    knownMismatches: [
-      "The user update handler accepts a Permissions field, but the route does not require permission 7 for that field."
-    ]
   },
   // User permission assignment capability policy.
   {
     capability: PermissionCapability.USER_PERMISSION_MANAGEMENT,
     intendedPermissionIds: [PermissionId.SET_USER_PERMISSIONS],
-    backendRule: "User add and promote routes require permission 7 in addition to permission 6. The user update route does not currently enforce permission 7 when its Permissions field is supplied.",
+    backendRule: "User add and promote routes require permission 7 in addition to permission 6. User updates also require permission 7 whenever the Permissions field is supplied.",
     frontendRule: "Permission-edit UI is gated by permission 7."
   },
   // Audit workflow capability policy.
