@@ -51,6 +51,7 @@ function buildScope(overrides: Partial<Scope> = {}): Scope {
 type Deps = {
   canResetUserPasswords: (user: unknown) => boolean;
   requirePermissionOrSelf: (permissionId: number) => RequestHandler;
+  requirePermissionForBodyField: (permissionId: number, fieldName: string) => RequestHandler;
   getAssetAccessScope: (user: unknown) => Promise<Scope | null>;
   canAccessAssetDepartment: (scope: Scope, departmentId?: number | null) => boolean;
   previewImportHandler: (req: { body: unknown }, res: MockResponse) => Promise<void>;
@@ -66,6 +67,7 @@ type Deps = {
 function loadDeps(): Deps {
   const { canResetUserPasswords } = require("../src/auth/passwordResetPermission") as Deps;
   const { requirePermissionOrSelf } = require("../src/auth/requirePermission") as Deps;
+  const { requirePermissionForBodyField } = require("../src/auth/requirePermission") as Deps;
   const { getAssetAccessScope, canAccessAssetDepartment } = require("../src/auth/assetScope") as Deps;
   const { previewImportHandler, importAssetsHandler } = require("../src/imports/import") as Deps;
   const usersDb = require("../src/db/procedures/users") as Deps["usersDb"];
@@ -74,6 +76,7 @@ function loadDeps(): Deps {
   return {
     canResetUserPasswords,
     requirePermissionOrSelf,
+    requirePermissionForBodyField,
     getAssetAccessScope,
     canAccessAssetDepartment,
     previewImportHandler,
@@ -121,6 +124,42 @@ async function run() {
     const invalidTarget = invoke("not-a-person-id", permissionOneUser);
     assert.equal(invalidTarget.proceeded, false);
     assert.equal(invalidTarget.res.statusCode, 403);
+  }
+
+  // Regression: permission 7 is required only when an update changes permissions.
+  {
+    const canChangePermissions = deps.requirePermissionForBodyField(
+      PermissionId.SET_USER_PERMISSIONS,
+      "Permissions"
+    );
+    const invoke = (body: unknown, user: unknown) => {
+      const res = createMockResponse(user);
+      let proceeded = false;
+      canChangePermissions(
+        { body } as unknown as Parameters<RequestHandler>[0],
+        res as unknown as Parameters<RequestHandler>[1],
+        () => { proceeded = true; }
+      );
+      return { res, proceeded };
+    };
+
+    const permissionSixUser = {
+      UserID: 1,
+      PersonID: 5,
+      Salt: "s",
+      Permissions: [PermissionId.ADD_EDIT_VIEW_USERS]
+    };
+    assert.equal(invoke({ FirstName: "Ada" }, permissionSixUser).proceeded, true);
+
+    const deniedPermissionChange = invoke({ Permissions: [] }, permissionSixUser);
+    assert.equal(deniedPermissionChange.proceeded, false);
+    assert.equal(deniedPermissionChange.res.statusCode, 403);
+
+    const permissionSevenUser = {
+      ...permissionSixUser,
+      Permissions: [PermissionId.ADD_EDIT_VIEW_USERS, PermissionId.SET_USER_PERMISSIONS]
+    };
+    assert.equal(invoke({ Permissions: [] }, permissionSevenUser).proceeded, true);
   }
 
   const originalGetDepartmentIDsByPersonID = deps.usersDb.getDepartmentIDsByPersonID;

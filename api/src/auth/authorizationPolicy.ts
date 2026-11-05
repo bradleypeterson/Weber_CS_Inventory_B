@@ -51,9 +51,9 @@ export const backendRoutePolicyRegistry: readonly BackendRoutePolicy[] = [
     method: "POST",
     route: "/users/:id/update",
     capability: PermissionCapability.USER_MANAGEMENT,
-    currentRule: "permission-check",
-    permissionIds: [PermissionId.ADD_EDIT_VIEW_USERS],
-    notes: "The route requires permission 6. The Permissions field is accepted by the handler but is not separately protected by permission 7."
+    currentRule: "mixed",
+    permissionIds: [PermissionId.ADD_EDIT_VIEW_USERS, PermissionId.SET_USER_PERMISSIONS],
+    notes: "Permission 6 is required for updates; permission 7 is additionally required when the Permissions field is supplied."
   },
   {
     method: "POST",
