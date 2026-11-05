@@ -163,7 +163,7 @@ export const permissionPolicyCatalog: readonly PermissionPolicyEntry[] = [
   {
     capability: PermissionCapability.USER_MANAGEMENT,
     intendedPermissionIds: [PermissionId.ADD_EDIT_VIEW_USERS],
-    backendRule: "User list, detail, archive, and update routes require permission 6. Add and promote routes require permissions 6 and 7. Admin password reset requires permission 6.",
+    backendRule: "User list, archive, and update routes require permission 6. Users can view their own details; viewing another user's details requires permission 6. Add and promote routes require permissions 6 and 7. Admin password reset requires permission 6.",
     frontendRule: "User dashboard/edit actions use permission 6.",
     knownMismatches: [
       "The user update handler accepts a Permissions field, but the route does not require permission 7 for that field."

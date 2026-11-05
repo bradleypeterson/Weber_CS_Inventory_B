@@ -27,10 +27,18 @@ export const backendRoutePolicyRegistry: readonly BackendRoutePolicy[] = [
   },
   {
     method: "GET",
-    route: "/users/list|/users/:id",
+    route: "/users/list",
     capability: PermissionCapability.USER_MANAGEMENT,
     currentRule: "permission-check",
     permissionIds: [PermissionId.ADD_EDIT_VIEW_USERS],
+  },
+  {
+    method: "GET",
+    route: "/users/:id",
+    capability: PermissionCapability.USER_MANAGEMENT,
+    currentRule: "mixed",
+    permissionIds: [PermissionId.ADD_EDIT_VIEW_USERS],
+    notes: "Users can view their own details; viewing another user's details requires permission 6."
   },
   {
     method: "POST",
