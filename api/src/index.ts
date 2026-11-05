@@ -3,6 +3,7 @@ import cors from "cors";
 import { config } from "dotenv";
 import express, { json } from "express";
 import morgan from "morgan";
+import { approvalRequestRouter } from "./approvalRequests";
 import { assetClassRouter } from "./assetClass";
 import { assetRouter } from "./assets";
 import { analyticsRouter } from "./analytics";
@@ -69,5 +70,6 @@ app.use("/rooms", roomRouter);
 app.use("/fiscal-years", fiscalYearsRouter);
 app.use("/imports", importRouter);
 app.use("/system-notes", systemNotesRouter);
+app.use("/approval-requests", approvalRequestRouter);
 
 app.listen(port, () => console.log(`Server running on port ${port}`));

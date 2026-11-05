@@ -138,7 +138,12 @@ function AssetDetailsView(props: DetailsViewProps) {
         setStatusMessage({ type: "error", message: response.error.message });
       } else {
         setFormData({});
-        setStatusMessage({ type: "success", message: "Asset added successfully." });
+        setStatusMessage({ 
+          type: "success",
+          message: response.data.approvalRequired === true
+            ? "Asset submitted for approval."
+            : "Asset added successfully."
+        });
       }
     } catch (e) {
       setStatusMessage({ type: "error", message: "An unknown error occurred while adding the asset" });

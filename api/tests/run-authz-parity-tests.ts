@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import type { RequestHandler } from "express";
 import { ADMIN_ADJACENT_PERMISSION_IDS, PermissionId } from "../../@types/permissions";
 
 type MockResponse = {
@@ -49,6 +50,7 @@ function buildScope(overrides: Partial<Scope> = {}): Scope {
 
 type Deps = {
   canResetUserPasswords: (user: unknown) => boolean;
+  requirePermissionOrSelf: (permissionId: number) => RequestHandler;
   getAssetAccessScope: (user: unknown) => Promise<Scope | null>;
   canAccessAssetDepartment: (scope: Scope, departmentId?: number | null) => boolean;
   previewImportHandler: (req: { body: unknown }, res: MockResponse) => Promise<void>;
@@ -63,6 +65,7 @@ type Deps = {
 
 function loadDeps(): Deps {
   const { canResetUserPasswords } = require("../src/auth/passwordResetPermission") as Deps;
+  const { requirePermissionOrSelf } = require("../src/auth/requirePermission") as Deps;
   const { getAssetAccessScope, canAccessAssetDepartment } = require("../src/auth/assetScope") as Deps;
   const { previewImportHandler, importAssetsHandler } = require("../src/imports/import") as Deps;
   const usersDb = require("../src/db/procedures/users") as Deps["usersDb"];
@@ -70,6 +73,7 @@ function loadDeps(): Deps {
 
   return {
     canResetUserPasswords,
+    requirePermissionOrSelf,
     getAssetAccessScope,
     canAccessAssetDepartment,
     previewImportHandler,
@@ -88,6 +92,35 @@ async function run() {
     const userWithPermissionSevenOnly = { UserID: 1, PersonID: 1, Salt: "s", Permissions: [PermissionId.SET_USER_PERMISSIONS] };
     assert.equal(deps.canResetUserPasswords(userWithPermissionSix), true);
     assert.equal(deps.canResetUserPasswords(userWithPermissionSevenOnly), false);
+  }
+
+  // Regression: users can read their own details, but need permission 6 for others.
+  {
+    const canReadUserDetails = deps.requirePermissionOrSelf(PermissionId.ADD_EDIT_VIEW_USERS);
+    const invoke = (targetId: string, user: unknown) => {
+      const res = createMockResponse(user);
+      let proceeded = false;
+      canReadUserDetails(
+        { params: { id: targetId } } as unknown as Parameters<RequestHandler>[0],
+        res as unknown as Parameters<RequestHandler>[1],
+        () => { proceeded = true; }
+      );
+      return { res, proceeded };
+    };
+
+    const permissionOneUser = { UserID: 1, PersonID: 5, Salt: "s", Permissions: [PermissionId.ADD_EDIT_ASSETS] };
+    assert.equal(invoke("5", permissionOneUser).proceeded, true);
+
+    const deniedOtherUser = invoke("6", permissionOneUser);
+    assert.equal(deniedOtherUser.proceeded, false);
+    assert.equal(deniedOtherUser.res.statusCode, 403);
+
+    const permissionSixUser = { ...permissionOneUser, Permissions: [PermissionId.ADD_EDIT_VIEW_USERS] };
+    assert.equal(invoke("6", permissionSixUser).proceeded, true);
+
+    const invalidTarget = invoke("not-a-person-id", permissionOneUser);
+    assert.equal(invalidTarget.proceeded, false);
+    assert.equal(invalidTarget.res.statusCode, 403);
   }
 
   const originalGetDepartmentIDsByPersonID = deps.usersDb.getDepartmentIDsByPersonID;

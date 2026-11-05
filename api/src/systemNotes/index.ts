@@ -1,9 +1,12 @@
 import { Router } from "express";
+import { PermissionId } from "../../../@types/permissions";
+import { requirePermission } from "../auth/requirePermission";
 import { createSystemNoteHandler, listSystemNoteEntityTypesHandler, listSystemNotesHandler } from "../systemNotes/notes";
 
 export const systemNotesRouter = Router();
 
-systemNotesRouter.get("/", listSystemNotesHandler);
-systemNotesRouter.get("/entity-types", listSystemNoteEntityTypesHandler);
-systemNotesRouter.post("/", createSystemNoteHandler);
+const canManageListOptions = requirePermission(PermissionId.ADD_EDIT_LIST_OPTIONS);
 
+systemNotesRouter.get("/", canManageListOptions, listSystemNotesHandler);
+systemNotesRouter.get("/entity-types", canManageListOptions, listSystemNoteEntityTypesHandler);
+systemNotesRouter.post("/", canManageListOptions, createSystemNoteHandler);
