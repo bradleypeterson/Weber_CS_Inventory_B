@@ -2,7 +2,7 @@ import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { sessionActivityKey, trackSessionActivity } from "../auth/sessionActivity";
 import { getSessionStatus, sessionActivityEvent, watchSessionTimeout } from "../auth/sessionTimeout";
-import { authenticatedFetch, sessionUnauthorizedEvent } from "../api/authenticatedFetch";
+import { authenticatedFetch, cancelSessionRequests, sessionUnauthorizedEvent } from "../api/authenticatedFetch";
 import { Button } from "../elements/Button/Button";
 import styles from "./SessionWarning.module.css";
 import { clearPersistedFilters } from "../filters/storage";
@@ -24,6 +24,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const next = { token: nextToken, queryClient: new QueryClient() };
     currentSession.current = next;
     previous.queryClient.clear();
+    cancelSessionRequests();
     if (previous.token) clearAssetSearchState();
     setSession(next);
   }, []);
