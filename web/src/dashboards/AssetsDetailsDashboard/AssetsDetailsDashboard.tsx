@@ -255,8 +255,7 @@ function AssetDetailsView({ assetId, assetDetails, ...props }: DetailsViewProps)
   }
 
   async function handleSubmit() {
-    let changedFields: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>;
-    changedFields = getChangedFields(assetDetails, formData);
+    const changedFields = getChangedFields(assetDetails, formData);
     if (Object.keys(changedFields).length === 0) {
       setIsEditing(false);
       return;
@@ -281,8 +280,8 @@ function AssetDetailsView({ assetId, assetDetails, ...props }: DetailsViewProps)
   }
 
   async function handleAddNote(note: string) {
-    await addNewNote(assetId, note);
-    refetchNotes();
+    const response = await addNewNote(assetId, note);
+    if (response.status === "success") refetchNotes();
   }
 
   const formStructure = useMemo(
