@@ -6,7 +6,7 @@ import { getAssetAnalytics } from "../db/procedures/analytics";
 
 export const analyticsRouter = Router();
 
-export async function getAssetAnalyticsHandler(_req: Request, res: Response) {
+export async function getAssetAnalyticsHandler(req: Request, res: Response) {
   try {
     const user = res.locals.user;
     if (!validateUser(user)) {
@@ -17,12 +17,23 @@ export async function getAssetAnalyticsHandler(_req: Request, res: Response) {
       res.status(403).json({ status: "error", error: { message: "You do not have permission to view analytics" } });
       return;
     }
+    const filters: import("../../../@types/analytics").AssetAnalyticsFilters = {};
+    for (const key of ["departmentId", "deviceTypeId"] as const) {
+      const value = req.query?.[key];
+      if (value === undefined) continue;
+      if (value === "unassigned") filters[key] = null;
+      else if (typeof value === "string" && /^[1-9]\d*$/.test(value) && Number.isSafeInteger(Number(value))) filters[key] = Number(value);
+      else {
+        res.status(400).json({ status: "error", error: { message: `Invalid ${key}` } });
+        return;
+      }
+    }
     const scope = await getAssetAccessScope(user);
     if (!scope) {
       res.status(401).json({ status: "error", error: { message: "Unknown user" } });
       return;
     }
-    const data = await getAssetAnalytics(scope.isAdmin ? undefined : scope.departmentIds);
+    const data = await getAssetAnalytics(scope.isAdmin ? undefined : scope.departmentIds, filters);
     res.json({ status: "success", data });
   } catch (error) {
     console.error("Error in asset analytics endpoint:", error);

@@ -16,6 +16,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { useLinkTo } from "../../navigation/useLinkTo";
 import { ASSET_PAGE_SIZES, AssetPageSize, loadAssetSearchState, saveAssetSearchState } from "../../state/assetSearchStorage";
 import styles from "./AssetsSearchDashboard.module.css";
+import { useSearchParams } from "react-router";
 
 const ASSETS_EXPORT_COLUMNS: ExportColumn<AssetDetails>[] = [
   { label: "Equipment ID", getValue: (row) => String(row.EquipmentID) },
@@ -50,10 +51,12 @@ const ASSETS_EXPORT_COLUMNS: ExportColumn<AssetDetails>[] = [
 ];
 
 export function AssetsSearchDashboard() {
+  const [query, setQuery] = useSearchParams();
+  const analyticsMode = query.get("from") === "analytics";
   const { personID } = useAuth();
   const [savedState] = useState(() => loadAssetSearchState(personID));
-  const [searchText, setSearchText] = useState(savedState.searchText);
-  const [page, setPage] = useState(savedState.page);
+  const [searchText, setSearchText] = useState(analyticsMode ? "" : savedState.searchText);
+  const [page, setPage] = useState(analyticsMode ? 1 : savedState.page);
   const [pageSize, setPageSize] = useState<AssetPageSize>(savedState.pageSize);
   const [selectedAssets, setSelectedAssets] = useState<number[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -66,8 +69,9 @@ export function AssetsSearchDashboard() {
   const linkTo = useLinkTo();
 
   useEffect(() => {
+    if (analyticsMode) return;
     saveAssetSearchState(personID, { searchText, page, pageSize });
-  }, [personID, searchText, page, pageSize]);
+  }, [personID, searchText, page, pageSize, analyticsMode]);
 
   const filteredData = useMemo(() => {
     const selectedAssetClasses = filters["Asset Class"] ?? [];
@@ -75,6 +79,12 @@ export function AssetsSearchDashboard() {
 
     // No selected values means "no restriction", so rows should still be shown.
     const filteredData = data?.filter((row) => {
+      if (analyticsMode) {
+        return ([['departmentId', row.DepartmentID], ['deviceTypeId', row.DeviceTypeID], ['conditionId', row.ConditionID]] as const).every(([key, id]) => {
+          const value = query.get(key);
+          return value === null || (value === "unassigned" ? id == null : /^[1-9]\d*$/.test(value) && Number(value) === id);
+        });
+      }
       const assetClassMatch = selectedAssetClasses.length === 0 || selectedAssetClasses.includes(row.AssetClassID ?? 0);
       const departmentMatch = selectedDepartments.length === 0 || selectedDepartments.includes(row.DepartmentID ?? 0);
       return assetClassMatch && departmentMatch;
@@ -87,7 +97,15 @@ export function AssetsSearchDashboard() {
             Object.values(row).some((value) => value?.toString().toLowerCase().includes(searchText))
           ) ?? []);
     return searchedData;
-  }, [searchText, data, filters]);
+  }, [searchText, data, filters, analyticsMode, query]);
+
+  useEffect(() => {
+    if (analyticsMode) {
+      setSearchText("");
+      setPage(1);
+      setSelectedAssets([]);
+    }
+  }, [analyticsMode, query]);
 
   const totalResults = filteredData.length;
   const totalPages = Math.max(1, Math.ceil(totalResults / pageSize));
@@ -208,6 +226,10 @@ export function AssetsSearchDashboard() {
 
   return (
     <main className={styles.layout}>
+      {analyticsMode && <div role="status">
+        Showing active assets from Analytics: {query.get("group") ?? "Selected group"}.
+        <Button variant="secondary" onClick={() => { setQuery({}); setPage(1); }}>Clear Analytics filters</Button>
+      </div>}
       <Modal isOpen={showConfirmModal} onClose={handleCloseConfirm} title="Confirm Archive">
         <p>
           Archive {selectedAssets.length} {selectedAssets.length === 1 ? "asset" : "assets"}?

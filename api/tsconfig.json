@@ -5,8 +5,9 @@
     "target": "ES2024",
     "moduleResolution": "node",
     "sourceMap": true,
+    "rootDir": "..",
     "outDir": "dist",
     "strict": true,
   },
-  "include": ["src", "index.ts"]
+  "include": ["src", "index.ts", "tests"]
 }

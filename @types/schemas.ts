@@ -65,6 +65,7 @@ export const assetArraySchema: JSONSchemaType<Asset[]> = {
 export const assetOverviewSchema: JSONSchemaType<AssetOverview> = {
   type: "object",
   properties: {
+    ConditionID: { type: "number", nullable: true },
     EquipmentID: { type: "number" },
     TagNumber: { type: "string" },
     ContactPersonFirstName: { type: "string", nullable: true },

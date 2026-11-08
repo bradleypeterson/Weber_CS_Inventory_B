@@ -1,4 +1,11 @@
 .dashboard { padding: 2rem; overflow: auto; min-width: 0; }
+.chartButton { display: block; width: 100%; text-align: left; color: inherit; background: transparent; border: 0; padding: 0.25rem; font: inherit; cursor: pointer; }
+.chartButton:hover { background: var(--gray-blue); }
+.chartButton:focus-visible { outline: 2px solid var(--white); outline-offset: 2px; }
+.filters { display: flex; flex-wrap: wrap; align-items: end; gap: 1rem; margin-top: 1.5rem; }
+.filters label { display: flex; flex-direction: column; gap: 0.5rem; min-width: min(100%, 220px); }
+.filters select { padding: 0.65rem; border: 1px solid var(--gray); border-radius: 6px; background: var(--secondary-background); color: var(--white); font: inherit; max-width: 100%; }
+.filters select:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .description { color: var(--off-white); margin-top: 0.5rem; }
 .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-block: 1.5rem 2rem; }
 .card, .panel { background: var(--secondary-background); border: 1px solid var(--gray); border-radius: 10px; padding: 1.5rem; min-width: 0; }
