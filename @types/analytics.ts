@@ -4,8 +4,14 @@ export type AssetCountGroup = {
   count: number;
 };
 
+export type AssetAnalyticsFilters = {
+  departmentId?: number | null;
+  deviceTypeId?: number | null;
+};
+
 export type AssetAnalytics = {
   totalActiveAssets: number;
   byDepartment: AssetCountGroup[];
   byDeviceType: AssetCountGroup[];
+  byCondition: AssetCountGroup[];
 };

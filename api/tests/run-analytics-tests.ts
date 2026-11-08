@@ -23,7 +23,7 @@ async function run() {
     ]];
   };
   try {
-    assert.deepEqual(await getAssetAnalytics([]), { totalActiveAssets: 0, byDepartment: [], byDeviceType: [] });
+    assert.deepEqual(await getAssetAnalytics([]), { totalActiveAssets: 0, byDepartment: [], byDeviceType: [], byCondition: [] });
     assert.equal(calls, 0);
     const result = await getAssetAnalytics();
     assert.equal(result.totalActiveAssets, 6);
@@ -36,7 +36,7 @@ async function run() {
     assert.match(sql, /e.DepartmentID IN \(\?,\?\)/);
     assert.deepEqual(params, [2, 7]);
     pool.query = async () => [[]];
-    assert.deepEqual(await getAssetAnalytics([2]), { totalActiveAssets: 0, byDepartment: [], byDeviceType: [] });
+    assert.deepEqual(await getAssetAnalytics([2]), { totalActiveAssets: 0, byDepartment: [], byDeviceType: [], byCondition: [] });
     const { getAssetAnalyticsHandler } = require("../src/analytics");
     const usersDb = require("../src/db/procedures/users");
     const originalDepartments = usersDb.getDepartmentIDsByPersonID;

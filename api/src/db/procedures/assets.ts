@@ -213,7 +213,8 @@ export async function getAllAssetsOverview(departmentIds?: number[]) {
         e.AssetClassID,
         ac.Name as AssetClass,
         e.DeviceTypeID,
-        dt.Name as DeviceType
+        dt.Name as DeviceType,
+        e.ConditionID
       from Equipment e 
       left join Person p on e.ContactPersonID = p.PersonID 
       left join Department d on d.DepartmentID = e.DepartmentID
@@ -221,6 +222,7 @@ export async function getAllAssetsOverview(departmentIds?: number[]) {
       left join DeviceType dt on dt.DeviceTypeID = e.DeviceTypeID 
       left join \`Condition\` c on c.ConditionID = e.ConditionID 
       where ArchiveStatus = 0
+      AND (e.Deleted = 0 OR e.Deleted IS NULL)
       ${scope.clause.replaceAll("DepartmentID", "e.DepartmentID")}
     `;
     const [rows] = await pool.query<AssetOverviewRow[]>(query, scope.values);

@@ -11,8 +11,14 @@ import { useFilters } from "../filters/useFilters";
 import { useAuth } from "../hooks/useAuth";
 import { clearAssetSearchState, loadAssetSearchState, saveAssetSearchState } from "../state/assetSearchStorage";
 
-const api = vi.hoisted(() => ({ list: vi.fn() }));
-vi.mock("../api/assets", () => ({ fetchAssetOverviewList: api.list, archiveAssets: vi.fn(), fetchAssetsExport: vi.fn() }));
+const api = vi.hoisted(() => ({ list: vi.fn(), export: vi.fn() }));
+// Search tests use inert tokens; session timeout behavior is tested separately.
+vi.mock("../auth/sessionTimeout", () => ({
+  sessionActivityEvent: "session-activity",
+  getSessionStatus: () => ({ expired: false, warning: false, remainingMs: 60_000 }),
+  watchSessionTimeout: () => () => {}
+}));
+vi.mock("../api/assets", () => ({ fetchAssetOverviewList: api.list, archiveAssets: vi.fn(), fetchAssetsExport: api.export }));
 vi.mock("../export/downloadExport", () => ({ downloadExport: vi.fn() }));
 vi.mock("@phosphor-icons/react", () => ({ MagnifyingGlass: () => "Inspect", Trash: () => "Archive" }));
 vi.mock("../navigation/useDashboard", () => ({
@@ -40,6 +46,7 @@ function FilterControls() {
   return <>
     <button onClick={() => selectFilter("Department", [1])}>Choose Computing</button>
     <button onClick={() => selectFilter("Department", [2])}>Choose Science</button>
+    <button onClick={() => selectFilter("Asset Class", [2])}>Choose other class</button>
     <button onClick={apply}>Apply filters</button>
     <button onClick={resetFilters}>Reset filters</button>
     <output data-testid="applied">{JSON.stringify(filters)}</output>
@@ -90,6 +97,51 @@ beforeEach(() => {
   localStorage.setItem("personID", "7");
   localStorage.setItem("permissions", "[]");
   api.list.mockReset().mockResolvedValue(rows);
+  api.export.mockReset().mockResolvedValue([]);
+});
+
+it("replaces Analytics restrictions when a different department is applied", async () => {
+  mount("/assets/search?from=analytics&departmentId=1&group=Computing");
+  await screen.findByText("Page 1 of 10 (100 results)");
+  fireEvent.click(screen.getByText("Choose Science"));
+  expect(screen.getByText("Page 1 of 10 (100 results)")).toBeTruthy();
+  fireEvent.click(screen.getByText("Apply filters"));
+  await screen.findByText("Page 1 of 4 (40 results)");
+  expect(screen.queryByText(/Showing active assets from Analytics/)).toBeNull();
+  expect(screen.getByText("asset-101")).toBeTruthy();
+  fireEvent.click(screen.getByRole("button", { name: "Export" }));
+  await waitFor(() => expect(api.export).toHaveBeenCalledWith(rows.slice(100).map(row => row.EquipmentID)));
+});
+
+it("applies asset class after Analytics navigation", async () => {
+  api.list.mockResolvedValue([
+    { EquipmentID: 1, TagNumber: "class-one", DepartmentID: 1, AssetClassID: 1 },
+    { EquipmentID: 2, TagNumber: "class-two", DepartmentID: 1, AssetClassID: 2 }
+  ]);
+  mount("/assets/search?from=analytics&departmentId=1&deviceTypeId=unassigned");
+  await screen.findByText("Page 1 of 1 (2 results)");
+  fireEvent.click(screen.getByText("Choose other class"));
+  fireEvent.click(screen.getByText("Apply filters"));
+  await screen.findByText("Page 1 of 1 (1 results)");
+  expect(screen.queryByText("class-one")).toBeNull();
+  expect(screen.getByText("class-two")).toBeTruthy();
+});
+
+it.each(["Apply filters", "Reset filters"])("clears Analytics with empty sidebar filters via %s", async action => {
+  mount("/assets/search?from=analytics&departmentId=1");
+  await screen.findByText("Page 1 of 10 (100 results)");
+  fireEvent.click(screen.getByText(action));
+  await screen.findByText("Page 1 of 14 (140 results)");
+  expect(screen.queryByText(/Showing active assets from Analytics/)).toBeNull();
+});
+
+it("exits Analytics even when the applied filters equal the saved filters", async () => {
+  seedSearch();
+  mount("/assets/search?from=analytics&departmentId=2");
+  await screen.findByText("Page 1 of 2 (40 results)");
+  fireEvent.click(screen.getByText("Apply filters"));
+  await screen.findByText("Page 1 of 4 (100 results)");
+  expect(screen.queryByText(/Showing active assets from Analytics/)).toBeNull();
 });
 
 it.each(["Back from details", "Sidebar search"])("restores results through %s", async (returnButton) => {

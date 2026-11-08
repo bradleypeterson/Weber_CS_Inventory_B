@@ -67,6 +67,7 @@ export type Asset = {
 };
 
 export type AssetOverview = {
+  ConditionID?: number | null;
   EquipmentID: number;
   TagNumber: string;
   ContactPersonFirstName?: string | null;
