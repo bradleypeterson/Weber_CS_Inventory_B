@@ -66,6 +66,7 @@ export function AssetsSearchDashboard() {
   const [alert, setAlert] = useState("");
   const { filters } = useFilters();
   const previousFilters = useRef(filters);
+  const previousAnalyticsMode = useRef(analyticsMode);
   const linkTo = useLinkTo();
 
   useEffect(() => {
@@ -100,11 +101,12 @@ export function AssetsSearchDashboard() {
   }, [searchText, data, filters, analyticsMode, query]);
 
   useEffect(() => {
-    if (analyticsMode) {
-      setSearchText("");
+    if (analyticsMode || previousAnalyticsMode.current) {
+      if (analyticsMode) setSearchText("");
       setPage(1);
       setSelectedAssets([]);
     }
+    previousAnalyticsMode.current = analyticsMode;
   }, [analyticsMode, query]);
 
   const totalResults = filteredData.length;

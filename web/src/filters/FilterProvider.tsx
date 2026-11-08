@@ -1,4 +1,5 @@
 import { ReactNode, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router";
 import { useDashboard } from "../navigation/useDashboard";
 import { useAuth } from "../hooks/useAuth";
 import { loadAssetSearchState, saveAssetSearchState } from "../state/assetSearchStorage";
@@ -86,6 +87,7 @@ function loadStoredFiltersByRoute(): FiltersByRoute {
 }
 
 export function FilterProvider({ children }: { children: ReactNode }) {
+  const [query, setQuery] = useSearchParams();
   const { token, personID } = useAuth();
   const { dashboard } = useDashboard();
   const routeKey = dashboard?.key ?? FALLBACK_ROUTE_KEY;
@@ -152,7 +154,15 @@ export function FilterProvider({ children }: { children: ReactNode }) {
     });
   }
 
+  function clearAnalyticsFilters() {
+    if (routeKey !== ASSET_SEARCH_ROUTE_KEY || query.get("from") !== "analytics") return;
+    const next = new URLSearchParams(query);
+    for (const key of ["from", "group", "departmentId", "deviceTypeId", "conditionId"]) next.delete(key);
+    setQuery(next, { replace: true });
+  }
+
   function resetFilters() {
+    clearAnalyticsFilters();
     setFiltersByRoute((prev) => {
       const next = { ...prev };
       delete next[routeKey];
@@ -167,6 +177,9 @@ export function FilterProvider({ children }: { children: ReactNode }) {
   }
 
   function apply() {
+    // Applying sidebar filters replaces the Analytics drilldown, even when
+    // the selected values equal the previously saved filters or are empty.
+    clearAnalyticsFilters();
     const nextRouteFilters = normalizeFilterValues(selectedFiltersByRoute[routeKey] ?? {});
     const hasSelectedFilters = Object.keys(nextRouteFilters).length > 0;
 
