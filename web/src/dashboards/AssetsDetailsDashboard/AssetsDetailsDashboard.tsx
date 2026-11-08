@@ -36,9 +36,27 @@ import {
   useRooms
 } from "../../hooks/optionHooks";
 import { useAuth } from "../../hooks/useAuth";
+import { buildPath } from "../../navigation/useAccessibleRoutes";
 import { useLinkTo } from "../../navigation/useLinkTo";
 import { isListOptionActive } from "../../utils/listOptionDeleted";
 import styles from "./AssetsDetailsDashboard.module.css";
+
+function AssetDetailsBackButton() {
+  const navigate = useNavigate();
+
+  return (
+    <IconButton
+      aria-label="Back"
+      icon={<ArrowLeft />}
+      variant="secondary"
+      onClick={() => {
+        // BrowserRouter's index counts in-app entries. history.length also counts external pages.
+        if (window.history.state?.idx > 0) navigate(-1);
+        else navigate(buildPath("Search", ["Assets"]), { replace: true });
+      }}
+    />
+  );
+}
 
 export function AssetsDetailsDashboard() {
   const [tagNumber, setTagNumber] = useState("");
@@ -228,8 +246,6 @@ function AssetDetailsView({ assetId, assetDetails, ...props }: DetailsViewProps)
     queryFn: () => fetchAssetNotes(assetId)
   });
   const { permissions } = useAuth();
-  const linkTo = useLinkTo();
-  const navigate = useNavigate();
 
   const [formData, setFormData] = useState<
     Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>
@@ -307,15 +323,7 @@ function AssetDetailsView({ assetId, assetDetails, ...props }: DetailsViewProps)
           {error && <span style={{ color: "red" }}>{error}</span>}
           {hasPermission(permissions, PermissionId.ADD_EDIT_ASSETS) && !isEditing && (
             <div className={styles.assetActions}>
-              <IconButton 
-                icon={<ArrowLeft />} 
-                variant="secondary" 
-                onClick={() => {
-                  const canGoBack = typeof window !== "undefined" && window.history.length > 1;
-                  if (canGoBack) navigate(-1);
-                  else linkTo("Asset Details", ["Assets"]);
-                }}
-              />
+              <AssetDetailsBackButton />
               <IconButton icon={<Pencil />} variant="secondary" onClick={() => setIsEditing(true)} />
             </div>
           )}
