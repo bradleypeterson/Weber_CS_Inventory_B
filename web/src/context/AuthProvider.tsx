@@ -1,7 +1,8 @@
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
 import { sessionActivityKey, trackSessionActivity } from "../auth/sessionActivity";
 import { getSessionStatus, sessionActivityEvent, watchSessionTimeout } from "../auth/sessionTimeout";
-import { authenticatedFetch, sessionUnauthorizedEvent } from "../api/authenticatedFetch";
+import { authenticatedFetch, cancelSessionRequests, sessionUnauthorizedEvent } from "../api/authenticatedFetch";
 import { Button } from "../elements/Button/Button";
 import styles from "./SessionWarning.module.css";
 import { clearPersistedFilters } from "../filters/storage";
@@ -10,9 +11,23 @@ import { AuthContext } from "./authContext";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [permissions, setPermissions] = useState<number[]>([]);
-  const [token, setToken] = useState<string>("");
+  const [session, setSession] = useState(() => ({ token: "", queryClient: new QueryClient() }));
+  const currentSession = useRef(session);
+  const { token, queryClient } = session;
   const [personID, setPersonID] = useState<number>(0);
   const [warningMinutes, setWarningMinutes] = useState<number | null>(null);
+
+  const setToken = useCallback((nextToken: string) => {
+    const previous = currentSession.current;
+    if (previous.token === nextToken) return;
+
+    const next = { token: nextToken, queryClient: new QueryClient() };
+    currentSession.current = next;
+    previous.queryClient.clear();
+    cancelSessionRequests();
+    if (previous.token) clearAssetSearchState();
+    setSession(next);
+  }, []);
 
   useEffect(() => {
     function restoreAuth() {
@@ -37,11 +52,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
-  }, []);
+  }, [setToken]);
 
   const logout = useCallback(() => {
-    clearAssetSearchState();
-
     const currentToken = localStorage.getItem("token");
     if (currentToken) {
       void fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
@@ -63,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("personID");
     localStorage.removeItem(sessionActivityKey);
     clearPersistedFilters();
-  }, []);
+  }, [setToken]);
 
   const notifyActivity = useCallback(async () => {
     const result = await authenticatedFetch(`${import.meta.env.VITE_API_URL}/auth/activity`, {
@@ -116,7 +129,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider value={{ permissions, setPermissions, token, setToken, personID, setPersonID, logout }}>
-      {children}
+      {/* React Query v3 observers keep the client they were created with. */}
+      <QueryClientProvider key={token} client={queryClient}>
+        {children}
+      </QueryClientProvider>
       {token && warningMinutes !== null && (
         <section className={styles.warning} role="alert" aria-labelledby="session-warning-title">
           <h2 id="session-warning-title">Are you still using the app?</h2>

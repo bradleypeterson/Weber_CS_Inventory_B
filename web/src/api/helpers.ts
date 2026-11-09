@@ -9,8 +9,7 @@ export async function post<T>(
   body: unknown,
   validator: ValidateFunction<T>
 ): Promise<APIErrorResponse | APISuccessResponse<T>> {
-  const url = `${apiURL}${endpoint}`;
-  const options: RequestInit = {
+  return request(endpoint, {
     method: "POST",
     redirect: "follow",
     credentials: "include",
@@ -19,36 +18,14 @@ export async function post<T>(
       Authorization: `Bearer ${localStorage.getItem("token")}`
     },
     body: JSON.stringify(body)
-  };
-
-  const result = await authenticatedFetch(url, options);
-  const response = await result.json();
-
-  if (!validateApiResponse(response)) {
-    console.error(validateApiResponse.errors);
-    throw Error("Invalid api response");
-  }
-
-  if (response.status === "error") return response;
-
-  if (validator(response.data)) {
-    return {
-      status: "success",
-      data: response.data
-    };
-  }
-  else {
-    console.error(validator.errors);
-    throw Error("Failed to validate data");
-  }
+  }, validator);
 }
 
 export async function get<T>(
   endpoint: string,
   validator: ValidateFunction<T>
 ): Promise<APIErrorResponse | APISuccessResponse<T>> {
-  const url = `${apiURL}${endpoint}`;
-  const options: RequestInit = {
+  return request(endpoint, {
     method: "GET",
     redirect: "follow",
     credentials: "include",
@@ -56,10 +33,24 @@ export async function get<T>(
       "Content-Type": "application/json",
       Authorization: `Bearer ${localStorage.getItem("token")}`
     }
-  };
+  }, validator);
+}
 
-  const result = await authenticatedFetch(url, options);
-  const response = await result.json();
+async function request<T>(
+  endpoint: string,
+  options: RequestInit,
+  validator: ValidateFunction<T>
+): Promise<APIErrorResponse | APISuccessResponse<T>> {
+  let response: unknown;
+  try {
+    const result = await authenticatedFetch(`${apiURL}${endpoint}`, options);
+    response = await result.json();
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      return { status: "error", error: { message: "The session has ended." } };
+    }
+    throw error;
+  }
 
   if (!validateApiResponse(response)) {
     console.error(validateApiResponse.errors);

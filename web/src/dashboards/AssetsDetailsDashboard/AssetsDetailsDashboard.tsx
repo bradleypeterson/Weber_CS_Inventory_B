@@ -36,16 +36,34 @@ import {
   useRooms
 } from "../../hooks/optionHooks";
 import { useAuth } from "../../hooks/useAuth";
+import { buildPath } from "../../navigation/useAccessibleRoutes";
 import { useLinkTo } from "../../navigation/useLinkTo";
 import { isListOptionActive } from "../../utils/listOptionDeleted";
 import styles from "./AssetsDetailsDashboard.module.css";
+
+function AssetDetailsBackButton() {
+  const navigate = useNavigate();
+
+  return (
+    <IconButton
+      aria-label="Back"
+      icon={<ArrowLeft />}
+      variant="secondary"
+      onClick={() => {
+        // BrowserRouter's index counts in-app entries. history.length also counts external pages.
+        if (window.history.state?.idx > 0) navigate(-1);
+        else navigate(buildPath("Search", ["Assets"]), { replace: true });
+      }}
+    />
+  );
+}
 
 export function AssetsDetailsDashboard() {
   const [tagNumber, setTagNumber] = useState("");
   const [lookupError, setLookupError] = useState("");
   const [isResolvingTag, setIsResolvingTag] = useState(false);
   const linkTo = useLinkTo();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const assetIdParam = useMemo(() => searchParams.get("assetId"), [searchParams]);
   const parsedAssetId = Number(assetIdParam);
   const hasAssetIdParam = assetIdParam !== null;
@@ -81,15 +99,15 @@ export function AssetsDetailsDashboard() {
   useEffect(() => {
     if (!hasAssetIdParam || hasValidAssetIdParam) return;
     setLookupError("Invalid asset ID");
-    linkTo("Asset Details", ["Assets"]);
-  }, [hasAssetIdParam, hasValidAssetIdParam, linkTo]);
+    setSearchParams({}, { replace: true });
+  }, [hasAssetIdParam, hasValidAssetIdParam, setSearchParams]);
 
   useEffect(() => {
     if (!hasAssetIdParam || !assetDetailsError) return;
     const message = assetDetailsQueryError instanceof Error ? assetDetailsQueryError.message : "Unable to load asset";
     setLookupError(message);
-    linkTo("Asset Details", ["Assets"]);
-  }, [assetDetailsError, assetDetailsQueryError, hasAssetIdParam, linkTo]);
+    setSearchParams({}, { replace: true });
+  }, [assetDetailsError, assetDetailsQueryError, hasAssetIdParam, setSearchParams]);
 
   async function handleLookupByTag() {
     const trimmedTag = tagNumber.trim();
@@ -118,6 +136,7 @@ export function AssetsDetailsDashboard() {
 
   const lookupPanel = (
     <div className={styles.lookupContainer}>
+      <AssetDetailsBackButton />
       <h2>Find Asset By Tag Number</h2>
       <div className={styles.tagInput}>
         <IconInput
@@ -228,8 +247,7 @@ function AssetDetailsView({ assetId, assetDetails, ...props }: DetailsViewProps)
     queryFn: () => fetchAssetNotes(assetId)
   });
   const { permissions } = useAuth();
-  const linkTo = useLinkTo();
-  const navigate = useNavigate();
+  const canEdit = hasPermission(permissions, PermissionId.ADD_EDIT_ASSETS);
 
   const [formData, setFormData] = useState<
     Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>
@@ -255,8 +273,7 @@ function AssetDetailsView({ assetId, assetDetails, ...props }: DetailsViewProps)
   }
 
   async function handleSubmit() {
-    let changedFields: Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>;
-    changedFields = getChangedFields(assetDetails, formData);
+    const changedFields = getChangedFields(assetDetails, formData);
     if (Object.keys(changedFields).length === 0) {
       setIsEditing(false);
       return;
@@ -281,8 +298,8 @@ function AssetDetailsView({ assetId, assetDetails, ...props }: DetailsViewProps)
   }
 
   async function handleAddNote(note: string) {
-    await addNewNote(assetId, note);
-    refetchNotes();
+    const response = await addNewNote(assetId, note);
+    if (response.status === "success") refetchNotes();
   }
 
   const formStructure = useMemo(
@@ -306,21 +323,11 @@ function AssetDetailsView({ assetId, assetDetails, ...props }: DetailsViewProps)
         <div className={styles.headerActions}>
           {isSaving && <span>Saving...</span>}
           {error && <span style={{ color: "red" }}>{error}</span>}
-          {hasPermission(permissions, PermissionId.ADD_EDIT_ASSETS) && !isEditing && (
-            <div className={styles.assetActions}>
-              <IconButton 
-                icon={<ArrowLeft />} 
-                variant="secondary" 
-                onClick={() => {
-                  const canGoBack = typeof window !== "undefined" && window.history.length > 1;
-                  if (canGoBack) navigate(-1);
-                  else linkTo("Asset Details", ["Assets"]);
-                }}
-              />
-              <IconButton icon={<Pencil />} variant="secondary" onClick={() => setIsEditing(true)} />
-            </div>
+          {!isEditing && <AssetDetailsBackButton />}
+          {canEdit && !isEditing && (
+            <IconButton aria-label="Edit asset" icon={<Pencil />} variant="secondary" onClick={() => setIsEditing(true)} />
           )}
-          {hasPermission(permissions, PermissionId.ADD_EDIT_ASSETS) && isEditing && (
+          {canEdit && isEditing && (
             <div className={styles.editActions}>
               <IconButton icon={<X />} variant="secondary" onClick={handleCancelEdit} disabled={isSaving} />
               <IconButton icon={<Check />} variant="primary" onClick={handleSubmit} disabled={isSaving} />

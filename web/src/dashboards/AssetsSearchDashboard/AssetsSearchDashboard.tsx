@@ -249,6 +249,7 @@ export function AssetsSearchDashboard() {
         <div className={styles.row}>
           <IconButton icon={<Trash />} variant="secondary" disabled={deleteDisabled} onClick={handleArchiveClick} />
           <IconButton
+            aria-label="Inspect"
             icon={<MagnifyingGlass />}
             variant="secondary"
             disabled={inspectDisabled}
