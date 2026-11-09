@@ -63,7 +63,7 @@ export function AssetsDetailsDashboard() {
   const [lookupError, setLookupError] = useState("");
   const [isResolvingTag, setIsResolvingTag] = useState(false);
   const linkTo = useLinkTo();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const assetIdParam = useMemo(() => searchParams.get("assetId"), [searchParams]);
   const parsedAssetId = Number(assetIdParam);
   const hasAssetIdParam = assetIdParam !== null;
@@ -99,15 +99,15 @@ export function AssetsDetailsDashboard() {
   useEffect(() => {
     if (!hasAssetIdParam || hasValidAssetIdParam) return;
     setLookupError("Invalid asset ID");
-    linkTo("Asset Details", ["Assets"]);
-  }, [hasAssetIdParam, hasValidAssetIdParam, linkTo]);
+    setSearchParams({}, { replace: true });
+  }, [hasAssetIdParam, hasValidAssetIdParam, setSearchParams]);
 
   useEffect(() => {
     if (!hasAssetIdParam || !assetDetailsError) return;
     const message = assetDetailsQueryError instanceof Error ? assetDetailsQueryError.message : "Unable to load asset";
     setLookupError(message);
-    linkTo("Asset Details", ["Assets"]);
-  }, [assetDetailsError, assetDetailsQueryError, hasAssetIdParam, linkTo]);
+    setSearchParams({}, { replace: true });
+  }, [assetDetailsError, assetDetailsQueryError, hasAssetIdParam, setSearchParams]);
 
   async function handleLookupByTag() {
     const trimmedTag = tagNumber.trim();
@@ -136,6 +136,7 @@ export function AssetsDetailsDashboard() {
 
   const lookupPanel = (
     <div className={styles.lookupContainer}>
+      <AssetDetailsBackButton />
       <h2>Find Asset By Tag Number</h2>
       <div className={styles.tagInput}>
         <IconInput
