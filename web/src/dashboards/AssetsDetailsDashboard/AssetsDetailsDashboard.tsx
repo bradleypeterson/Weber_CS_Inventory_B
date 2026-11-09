@@ -246,6 +246,7 @@ function AssetDetailsView({ assetId, assetDetails, ...props }: DetailsViewProps)
     queryFn: () => fetchAssetNotes(assetId)
   });
   const { permissions } = useAuth();
+  const canEdit = hasPermission(permissions, PermissionId.ADD_EDIT_ASSETS);
 
   const [formData, setFormData] = useState<
     Record<string, string | string[] | (string | number)[] | number[] | boolean | number | null>
@@ -321,13 +322,11 @@ function AssetDetailsView({ assetId, assetDetails, ...props }: DetailsViewProps)
         <div className={styles.headerActions}>
           {isSaving && <span>Saving...</span>}
           {error && <span style={{ color: "red" }}>{error}</span>}
-          {hasPermission(permissions, PermissionId.ADD_EDIT_ASSETS) && !isEditing && (
-            <div className={styles.assetActions}>
-              <AssetDetailsBackButton />
-              <IconButton icon={<Pencil />} variant="secondary" onClick={() => setIsEditing(true)} />
-            </div>
+          {!isEditing && <AssetDetailsBackButton />}
+          {canEdit && !isEditing && (
+            <IconButton aria-label="Edit asset" icon={<Pencil />} variant="secondary" onClick={() => setIsEditing(true)} />
           )}
-          {hasPermission(permissions, PermissionId.ADD_EDIT_ASSETS) && isEditing && (
+          {canEdit && isEditing && (
             <div className={styles.editActions}>
               <IconButton icon={<X />} variant="secondary" onClick={handleCancelEdit} disabled={isSaving} />
               <IconButton icon={<Check />} variant="primary" onClick={handleSubmit} disabled={isSaving} />
