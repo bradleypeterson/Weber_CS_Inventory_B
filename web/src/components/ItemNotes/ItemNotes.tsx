@@ -69,6 +69,7 @@ export function ItemNotes({ itemNotes, equipmentItems, onAdd, onDelete }: Props)
                   {itemDescription}
                   <IconButton 
                     icon={<Pencil size={16} />} 
+                    aria-label={`Edit note for ${note.tagNumber}`}
                     variant="secondary" 
                     onClick={() => handleEditNote(note)} 
                   />
@@ -91,4 +92,4 @@ export function ItemNotes({ itemNotes, equipmentItems, onAdd, onDelete }: Props)
       />
     </>
   );
-} 
+}
