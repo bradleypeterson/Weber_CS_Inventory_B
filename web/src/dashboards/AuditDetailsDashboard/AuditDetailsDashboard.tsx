@@ -8,6 +8,7 @@ import { ItemNotes } from "../../components/ItemNotes/ItemNotes";
 import { Button } from "../../elements/Button/Button";
 import { Column, DynamicTable } from "../../elements/DynamicTable/DynamicTable";
 import { IconInput } from "../../elements/IconInput/IconInput";
+import { Modal } from "../../elements/Modal/Modal";
 import { LabelInput } from "../../elements/LabelInput/LabelInput";
 import { downloadAuditDetailsExport, type ExportColumn } from "../../export/downloadExport";
 import { useAuth } from "../../hooks/useAuth";
@@ -64,6 +65,7 @@ export function AuditDetailsDashboard() {
   const [searchText, setSearchText] = useState("");
   const [itemNotes, setItemNotes] = useState<ItemNote[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
   const exportMenuRef = useRef<HTMLDivElement>(null);
   const originalNotes = useRef<ItemNote[]>([]);
@@ -181,6 +183,11 @@ export function AuditDetailsDashboard() {
   const handleSaveNotes = () => {
     saveNotes.mutate(itemNotes);
   };
+
+  function handleBack() {
+    if (hasChanges) setConfirmDiscard(true);
+    else linkTo("History", ["Audits"]);
+  }
 
   const handleExport = useCallback(
     async (format: "csv" | "pdf") => {
@@ -320,6 +327,14 @@ export function AuditDetailsDashboard() {
         onAdd={handleNoteChange}
       />
       
+      <Modal isOpen={confirmDiscard} onClose={() => setConfirmDiscard(false)} title="Discard unsaved audit notes?">
+        <p>Returning to Audit History will discard your changes.</p>
+        <div className={styles.dialogActions}>
+          <Button variant="secondary" onClick={() => setConfirmDiscard(false)}>Keep editing</Button>
+          <Button variant="primary" onClick={() => linkTo("History", ["Audits"])}>Discard changes</Button>
+        </div>
+      </Modal>
+
       <div className={styles.backButtonContainer}>
         {hasChanges && (
           <Button 
@@ -333,7 +348,7 @@ export function AuditDetailsDashboard() {
         )}
         <Button 
           variant="secondary"
-          onClick={() => linkTo("History", ["Audits"])}
+          onClick={handleBack}
           className={styles.wideButton}
         >
           Back
