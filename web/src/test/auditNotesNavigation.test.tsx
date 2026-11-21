@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { afterAll, beforeAll, beforeEach, expect, it, vi } from "vitest";
@@ -85,4 +85,36 @@ it("discards a draft and goes to History without saving", async () => {
   await screen.findByRole("heading", { name: "Audit History" });
   expect(updateAuditNotes).not.toHaveBeenCalled();
   expect(client.getQueryData(["auditNotes", "7"])).toEqual([{ tagNumber: "LT-4", note: "Original note" }]);
+});
+
+function save() {
+  fireEvent.click(screen.getByRole("button", { name: "Save Changes" }));
+}
+
+it("keeps a failed save editable and leaves directly after a successful retry", async () => {
+  vi.mocked(updateAuditNotes).mockRejectedValueOnce(new Error("Failed to validate data"));
+  mount();
+  await editNote("Check battery");
+  save();
+  await screen.findByRole("alert");
+  fireEvent.click(requestBack().getByRole("button", { name: "Keep editing" }));
+  expect(screen.getByText("Check battery")).toBeTruthy();
+  await editNote("Battery replaced");
+  save();
+  await waitFor(() => expect(screen.queryByRole("button", { name: /sav(e changes|ing)/i })).toBeNull());
+  expect(updateAuditNotes).toHaveBeenCalledTimes(2);
+  expect(updateAuditNotes).toHaveBeenLastCalledWith("7", [{ tagNumber: "LT-4", note: "Battery replaced" }]);
+  fireEvent.click(screen.getByRole("button", { name: "Back" }));
+  await screen.findByRole("heading", { name: "Audit History" });
+});
+
+it("can discard after a failed save without sending another update", async () => {
+  vi.mocked(updateAuditNotes).mockRejectedValueOnce(new Error("Network unavailable"));
+  mount();
+  await editNote("Check battery");
+  save();
+  await screen.findByRole("alert");
+  fireEvent.click(requestBack().getByRole("button", { name: "Discard changes" }));
+  await screen.findByRole("heading", { name: "Audit History" });
+  expect(updateAuditNotes).toHaveBeenCalledTimes(1);
 });
