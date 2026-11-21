@@ -167,6 +167,14 @@ export const backendRoutePolicyRegistry: readonly BackendRoutePolicy[] = [
     permissionIds: [PermissionId.APPROVE_ASSET_REQUESTS],
   },
   {
+    method: "GET",
+    route: "/approval-requests/my-requests",
+    capability: PermissionCapability.READ_ONLY_AUTHENTICATED,
+    currentRule: "auth-only",
+    permissionIds: [],
+    notes: "The handler returns requests only for the authenticated user."
+  },
+  {
     method: "POST",
     route: "/approval-requests/:id/review",
     capability: PermissionCapability.ASSET_APPROVAL,

@@ -1,6 +1,6 @@
 import { Briefcase, Package, User, UserGear } from "@phosphor-icons/react";
 import { lazy } from "react";
-import { PermissionId, hasPermission, canViewAnalytics } from "../../../@types/permissions";
+import { PermissionId, canViewAnalytics, hasPermission } from "../../../@types/permissions";
 import { Login } from "../dashboards/Login/Login";
 import { RouteConfiguration } from "./types";
 const AnalyticsDashboard = lazy(() => import("../dashboards/AnalyticsDashboard/AnalyticsDashboard"));
@@ -15,6 +15,9 @@ const AssetsSearchDashboard = lazy(
 );
 const AuditDetailsDashboard = lazy(
   () => import("../dashboards/AuditDetailsDashboard/AuditDetailsDashboard")
+);
+const MyAssetRequestsDashboard = lazy(
+  () => import("../dashboards/MyAssetRequestsDashboard/MyAssetRequestsDashboard")
 );
 const AuditHistoryDashboard = lazy(
   () => import("../dashboards/AuditHistoryDashboard/AuditHistoryDashboard")
@@ -84,6 +87,12 @@ export const configuration: RouteConfiguration = [
         availability: ({ permissions }) => hasPermission(permissions, PermissionId.ADD_EDIT_ASSETS),
         label: "Add",
         component: AssetsAddDashboard
+      },
+      {
+        type: "dashboard",
+        availability: ({ permissions }) => hasPermission(permissions, PermissionId.ADD_EDIT_ASSETS),
+        label: "My Requests",
+        component: MyAssetRequestsDashboard
       }
     ],
     availability: () => true

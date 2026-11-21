@@ -407,3 +407,40 @@ export async function reviewApprovalRequest({
     connection.release();
   }
 }
+
+
+
+export interface UserAssetRequest extends RowDataPacket {
+  RequestID: number;
+  TagNumber: string;
+  Description: string | null;
+  RequestedAt: string;
+  Status: string;
+  ReviewedAt: string | null;
+  ReviewNote: string | null;
+}
+
+export async function getUserAssetRequests(userId: number): Promise<UserAssetRequest[]> {
+  try {
+    const [rows] = await pool.query<UserAssetRequest[]>(
+      `SELECT
+        RequestID,
+        JSON_UNQUOTE(JSON_EXTRACT(Payload, '$.TagNumber')) AS TagNumber,
+        JSON_UNQUOTE(JSON_EXTRACT(Payload, '$.Description')) AS Description,
+        DATE_FORMAT(RequestedAt, '%Y-%m-%d %H:%i:%s') AS RequestedAt,
+        Status,
+        DATE_FORMAT(ReviewedAt, '%Y-%m-%d %H:%i:%s') AS ReviewedAt,
+        ReviewNote
+      FROM ApprovalRequest
+      WHERE RequestedBy = ?
+        AND RequestType = 'asset_add'
+      ORDER BY RequestedAt DESC, RequestID DESC`,
+      [userId]
+    );
+
+    return rows;
+  } catch (error) {
+    console.error("Error in getUserAssetRequests:", error);
+    throw new Error("An error occurred while getting user asset requests");
+  }
+}
