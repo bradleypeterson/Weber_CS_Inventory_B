@@ -41,6 +41,43 @@ export async function fetchPendingAssetRequests(): Promise<PendingAssetRequest[]
   throw new Error(response.error.message);
 }
 
+export type UserAssetRequest = {
+  RequestID: number;
+  TagNumber: string;
+  Description: string | null;
+  RequestedAt: string;
+  Status: "pending" | "approved" | "denied";
+  ReviewedAt: string | null;
+  ReviewNote: string | null;
+};
+
+const userAssetRequestsSchema = {
+  type: "array",
+  items: {
+    type: "object",
+    properties: {
+      RequestID: { type: "number" },
+      TagNumber: { type: "string" },
+      Description: { type: ["string", "null"] },
+      RequestedAt: { type: "string" },
+      Status: { type: "string", enum: ["pending", "approved", "denied"] },
+      ReviewedAt: { type: ["string", "null"] },
+      ReviewNote: { type: ["string", "null"] }
+    },
+    required: ["RequestID", "TagNumber", "Description", "RequestedAt", "Status", "ReviewedAt", "ReviewNote"],
+    additionalProperties: false
+  }
+} as const;
+
+const validateUserAssetRequests = ajv.compile<UserAssetRequest[]>(userAssetRequestsSchema);
+
+export async function fetchUserAssetRequests(): Promise<UserAssetRequest[]> {
+  const response = await get("/approval-requests/my-requests", validateUserAssetRequests);
+
+  if (response.status === "success") return response.data;
+  throw new Error(response.error.message);
+}
+
 export type ReviewDecision = "approved" | "denied";
 type ReviewAssetRequestResponse = { assetId: number | null };
 
