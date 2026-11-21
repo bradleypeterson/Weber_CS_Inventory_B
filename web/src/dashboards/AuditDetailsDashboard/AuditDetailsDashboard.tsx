@@ -120,15 +120,6 @@ export function AuditDetailsDashboard() {
       setTimeout(() => {
         queryClient.invalidateQueries(["auditNotes", auditId]);
       }, 100);
-    },
-    onError: (error) => {
-      console.error("Error saving notes:", error);
-      if (error instanceof Error && error.message.includes('validate')) {
-        // TODO: this is sus. needs looking into
-        console.log("Validation error but assuming notes were saved");
-        originalNotes.current = JSON.parse(JSON.stringify(itemNotes));
-        setHasChanges(false);
-      }
     }
   });
 
@@ -336,6 +327,9 @@ export function AuditDetailsDashboard() {
       </Modal>
 
       <div className={styles.backButtonContainer}>
+        {saveNotes.isError && hasChanges && (
+          <span role="alert">Could not save your notes. Your edits are here. Try saving again.</span>
+        )}
         {hasChanges && (
           <Button 
             variant="primary"
