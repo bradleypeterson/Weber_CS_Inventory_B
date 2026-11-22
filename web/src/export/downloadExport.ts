@@ -28,23 +28,6 @@ function getFilename(filenameBase: string, format: ExportFormat): string {
   return `${filenameBase}-${y}-${m}-${d}.${ext}`;
 }
 
-function escapeCsvCell(value: string): string {
-  const s = String(value);
-  if (s.includes(",") || s.includes('"') || s.includes("\n") || s.includes("\r")) {
-    return `"${s.replace(/"/g, '""')}"`;
-  }
-  return s;
-}
-
-function buildCsvContent<T>(data: T[], columns: ExportColumn<T>[]): string {
-  const header = columns.map((c) => escapeCsvCell(c.label)).join(",");
-  const rows = data.map((row) =>
-    columns.map((c) => escapeCsvCell(c.getValue(row))).join(",")
-  );
-  const BOM = "\uFEFF";
-  return BOM + [header, ...rows].join("\r\n");
-}
-
 function buildPdfBlob<T>(data: T[], columns: ExportColumn<T>[], jsPDF: typeof import("jspdf").jsPDF, autoTable: typeof import("jspdf-autotable").default): Blob {
   const doc = new jsPDF({ orientation: "landscape" });
   const head = [columns.map((c) => c.label)];
@@ -60,11 +43,14 @@ function buildPdfBlob<T>(data: T[], columns: ExportColumn<T>[], jsPDF: typeof im
 
 function triggerDownload(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
+  try {
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+  } finally {
+    URL.revokeObjectURL(url);
+  }
 }
 
 /** Audit details export: summary + equipment table + notes table. */
@@ -84,34 +70,6 @@ function getAuditDetailsFilename(auditId: string, format: ExportFormat): string 
   const d = String(today.getDate()).padStart(2, "0");
   const ext = format === "csv" ? "csv" : "pdf";
   return `audit-details-export-${auditId}-${y}-${m}-${d}.${ext}`;
-}
-
-function buildAuditDetailsCsvContent<T>(
-  summary: { date: string; location: string; auditor: string },
-  equipmentData: T[],
-  equipmentColumns: ExportColumn<T>[],
-  notes: { tagNumber: string; note: string }[]
-): string {
-  const summaryHeader = "Date,Location,Auditor";
-  const summaryRow = [escapeCsvCell(summary.date), escapeCsvCell(summary.location), escapeCsvCell(summary.auditor)].join(",");
-  const equipmentHeader = equipmentColumns.map((c) => escapeCsvCell(c.label)).join(",");
-  const equipmentRows = equipmentData.map((row) =>
-    equipmentColumns.map((c) => escapeCsvCell(c.getValue(row))).join(",")
-  );
-  const notesHeader = "Tag Number,Note";
-  const notesRows = notes.map((n) => `${escapeCsvCell(n.tagNumber)},${escapeCsvCell(n.note)}`);
-  const BOM = "\uFEFF";
-  const sections = [
-    summaryHeader,
-    summaryRow,
-    "",
-    equipmentHeader,
-    ...equipmentRows,
-    "",
-    notesHeader,
-    ...notesRows
-  ];
-  return BOM + sections.join("\r\n");
 }
 
 function buildAuditDetailsPdfBlob<T>(
@@ -186,6 +144,7 @@ export async function downloadAuditDetailsExport<T>(options: AuditDetailsExportO
   const filename = getAuditDetailsFilename(auditId, format);
 
   if (format === "csv") {
+    const { buildAuditDetailsCsvContent } = await import("./csvExport");
     const content = buildAuditDetailsCsvContent(summary, equipmentData, equipmentColumns, notes);
     const blob = new Blob([content], { type: "text/csv;charset=utf-8" });
     triggerDownload(blob, filename);
@@ -209,6 +168,7 @@ export async function downloadExport<T>(options: DownloadExportOptions<T>): Prom
   const filename = getFilename(filenameBase, format);
 
   if (format === "csv") {
+    const { buildCsvContent } = await import("./csvExport");
     const content = buildCsvContent(data, columns);
     const blob = new Blob([content], { type: "text/csv;charset=utf-8" });
     triggerDownload(blob, filename);
