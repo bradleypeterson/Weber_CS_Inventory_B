@@ -57,18 +57,23 @@ const AUDIT_DETAILS_EXPORT_COLUMNS: ExportColumn<Data>[] = [
   { label: "Status", getValue: (row) => row.status }
 ];
 
+function applyNoteEdits(saved: ItemNote[], edits: ItemNote[]) {
+  const byTag = new Map(saved.map(note => [note.tagNumber, note]));
+  for (const edit of edits) byTag.set(edit.tagNumber, edit);
+  return Array.from(byTag.values());
+}
+
 export function AuditDetailsDashboard() {
   const { permissions } = useAuth();
   const linkTo = useLinkTo();
   const [searchParams] = useSearchParams();
   const auditId = searchParams.get("audit_id");
   const [searchText, setSearchText] = useState("");
-  const [itemNotes, setItemNotes] = useState<ItemNote[]>([]);
-  const [hasChanges, setHasChanges] = useState(false);
+  const [draftNotes, setDraftNotes] = useState<ItemNote[]>([]);
+  const hasChanges = draftNotes.length > 0;
   const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
   const exportMenuRef = useRef<HTMLDivElement>(null);
-  const originalNotes = useRef<ItemNote[]>([]);
   const queryClient = useQueryClient();
 
   const { data: auditDetails, isLoading: isLoadingDetails, error: detailsError } = useQuery<Data[]>(
@@ -84,42 +89,21 @@ export function AuditDetailsDashboard() {
     }
   );
 
-  // Fetch audit notes
-  const { isLoading: isLoadingNotes, error: notesError } = useQuery(
+  const { data: savedNotes, isLoading: isLoadingNotes, error: notesError } = useQuery(
     ["auditNotes", auditId],
-    async () => {
-      if (!auditId) throw new Error("No audit ID provided");
-      const data = await fetchAuditNotes(auditId);
-      
-      // Set the notes in state for use with ItemNotes component
-      setItemNotes(data);
-      originalNotes.current = [...data]; // Keep a copy of original notes
-      
-      return data;
-    },
-    {
-      enabled: !!auditId
-    }
+    () => fetchAuditNotes(auditId!),
+    { enabled: !!auditId }
   );
 
-  // Mutation for saving notes
+  const itemNotes = useMemo(() => applyNoteEdits(savedNotes ?? [], draftNotes), [savedNotes, draftNotes]);
+
   const saveNotes = useMutation({
-    mutationFn: async (notes: ItemNote[]) => {
-      if (!auditId) throw new Error("No audit ID provided");
-      
-      return updateAuditNotes(auditId, notes);
-    },
-    onSuccess: () => {
-      // Update local state - make a deep copy of the current notes
-      originalNotes.current = JSON.parse(JSON.stringify(itemNotes));
-      
-      // Make sure to set hasChanges to false immediately
-      setHasChanges(false);
-      
-      // Consider invalidating the query after a short delay to ensure state updates first
-      setTimeout(() => {
-        queryClient.invalidateQueries(["auditNotes", auditId]);
-      }, 100);
+    mutationFn: (edits: ItemNote[]) => updateAuditNotes(auditId!, edits),
+    onSuccess: async (_, submitted) => {
+      const key = ["auditNotes", auditId];
+      await queryClient.cancelQueries(key, { exact: true });
+      queryClient.setQueryData<ItemNote[]>(key, saved => applyNoteEdits(saved ?? [], submitted));
+      setDraftNotes(current => current.filter(note => !submitted.includes(note)));
     }
   });
 
@@ -144,36 +128,15 @@ export function AuditDetailsDashboard() {
   }, [auditDetails]);
 
   const isLoading = isLoadingDetails || isLoadingNotes;
-  const error = detailsError || notesError;
+  const error = (!auditDetails && detailsError) || (!savedNotes && notesError);
 
-  // Function to handle note changes
-  const handleNoteChange = (tagNumber: string, note: string) => {
-    const existingNoteIndex = itemNotes.findIndex(item => item.tagNumber === tagNumber);
-    
-    let updatedNotes: ItemNote[];
-    if (existingNoteIndex >= 0) {
-      updatedNotes = [...itemNotes];
-      updatedNotes[existingNoteIndex] = { tagNumber, note };
-    } else {
-      updatedNotes = [...itemNotes, { tagNumber, note }];
-    }
-    
-    setItemNotes(updatedNotes);
-    
-    // Check if notes have changed compared to original
-    const hasChanged = updatedNotes.length !== originalNotes.current.length || 
-      updatedNotes.some((updatedNote) => {
-        const originalNote = originalNotes.current.find(n => n.tagNumber === updatedNote.tagNumber);
-        return !originalNote || originalNote.note !== updatedNote.note;
-      });
-    
-    setHasChanges(hasChanged);
-  };
-
-  // Function to handle saving notes
-  const handleSaveNotes = () => {
-    saveNotes.mutate(itemNotes);
-  };
+  function handleNoteChange(tagNumber: string, note: string) {
+    const saved = savedNotes?.find(item => item.tagNumber === tagNumber);
+    setDraftNotes(current => {
+      const others = current.filter(item => item.tagNumber !== tagNumber);
+      return note === saved?.note ? others : [...others, { tagNumber, note }];
+    });
+  }
 
   function handleBack() {
     if (hasChanges) setConfirmDiscard(true);
@@ -333,7 +296,7 @@ export function AuditDetailsDashboard() {
         {hasChanges && (
           <Button 
             variant="primary"
-            onClick={handleSaveNotes}
+            onClick={() => saveNotes.mutate(draftNotes)}
             className={styles.wideButton}
             disabled={saveNotes.isLoading}
           >
