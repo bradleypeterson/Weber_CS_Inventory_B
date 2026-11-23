@@ -103,7 +103,7 @@ export function AuditDetailsDashboard() {
       const key = ["auditNotes", auditId];
       await queryClient.cancelQueries(key, { exact: true });
       queryClient.setQueryData<ItemNote[]>(key, saved => applyNoteEdits(saved ?? [], submitted));
-      setDraftNotes(current => current.filter(note => !submitted.includes(note)));
+      setDraftNotes([]);
     }
   });
 
@@ -278,6 +278,7 @@ export function AuditDetailsDashboard() {
       <ItemNotes 
         itemNotes={itemNotes} 
         equipmentItems={equipmentItems}
+        editingDisabled={saveNotes.isLoading}
         onAdd={handleNoteChange}
       />
       
@@ -305,6 +306,7 @@ export function AuditDetailsDashboard() {
         )}
         <Button 
           variant="secondary"
+          disabled={saveNotes.isLoading}
           onClick={handleBack}
           className={styles.wideButton}
         >
