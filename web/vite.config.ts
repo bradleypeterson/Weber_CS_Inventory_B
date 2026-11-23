@@ -12,8 +12,8 @@ export default defineConfig(({ mode }) => {
       react(),
       VitePWA({
         registerType: "autoUpdate",
-        workbox: {
-          globPatterns: ["**/*.{html,css,js,png,svg,jpg,webp}"]
+        injectManifest: {
+          globIgnores: ["**/node_modules/**/*", "**/analyticsCsvExport-*.js"]
         },
         strategies: "injectManifest",
         srcDir: "src",
