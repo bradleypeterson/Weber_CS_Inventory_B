@@ -1,7 +1,7 @@
 import { CaretDown, MagnifyingGlass } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router";
 import { PermissionId, hasPermission } from "../../../../@types/permissions";
 import { fetchAuditDetails, fetchAuditNotes, updateAuditNotes, type ItemNote, type RawData } from "../../api/audit";
 import { ItemNotes } from "../../components/ItemNotes/ItemNotes";
@@ -64,10 +64,14 @@ function applyNoteEdits(saved: ItemNote[], edits: ItemNote[]) {
 }
 
 export function AuditDetailsDashboard() {
+  const [searchParams] = useSearchParams();
+  const auditId = searchParams.get("audit_id") ?? "";
+  return <AuditDetails key={auditId} auditId={auditId} />;
+}
+
+function AuditDetails({ auditId }: { auditId: string }) {
   const { permissions } = useAuth();
   const linkTo = useLinkTo();
-  const [searchParams] = useSearchParams();
-  const auditId = searchParams.get("audit_id");
   const [searchText, setSearchText] = useState("");
   const [draftNotes, setDraftNotes] = useState<ItemNote[]>([]);
   const hasChanges = draftNotes.length > 0;
@@ -91,14 +95,14 @@ export function AuditDetailsDashboard() {
 
   const { data: savedNotes, isLoading: isLoadingNotes, error: notesError } = useQuery(
     ["auditNotes", auditId],
-    () => fetchAuditNotes(auditId!),
+    () => fetchAuditNotes(auditId),
     { enabled: !!auditId }
   );
 
   const itemNotes = useMemo(() => applyNoteEdits(savedNotes ?? [], draftNotes), [savedNotes, draftNotes]);
 
   const saveNotes = useMutation({
-    mutationFn: (edits: ItemNote[]) => updateAuditNotes(auditId!, edits),
+    mutationFn: (edits: ItemNote[]) => updateAuditNotes(auditId, edits),
     onSuccess: async (_, submitted) => {
       const key = ["auditNotes", auditId];
       await queryClient.cancelQueries(key, { exact: true });
