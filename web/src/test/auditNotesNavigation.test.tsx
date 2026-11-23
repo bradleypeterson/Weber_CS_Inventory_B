@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { afterAll, beforeAll, beforeEach, expect, it, vi } from "vitest";
@@ -117,4 +117,32 @@ it("can discard after a failed save without sending another update", async () =>
   fireEvent.click(requestBack().getByRole("button", { name: "Discard changes" }));
   await screen.findByRole("heading", { name: "Audit History" });
   expect(updateAuditNotes).toHaveBeenCalledTimes(1);
+});
+
+it("keeps edited text across a refetch and submits only the edited tag", async () => {
+  const client = mount();
+  await editNote("Battery replaced");
+  const refreshed = [
+    { tagNumber: "LT-4", note: "Original note" },
+    { tagNumber: "LT-5", note: "Updated by a coworker" }
+  ];
+  vi.mocked(fetchAuditNotes).mockResolvedValue(refreshed);
+  await act(() => client.refetchQueries(["auditNotes", "7"]));
+  expect(screen.getByText("Battery replaced")).toBeTruthy();
+  expect(screen.getByText("Updated by a coworker")).toBeTruthy();
+  save();
+  await waitFor(() => expect(client.getQueryData(["auditNotes", "7"])).toEqual([
+    { tagNumber: "LT-4", note: "Battery replaced" }, refreshed[1]
+  ]));
+  expect(updateAuditNotes).toHaveBeenCalledWith("7", [{ tagNumber: "LT-4", note: "Battery replaced" }]);
+});
+
+it("leaves directly after the user restores the original note", async () => {
+  mount();
+  await editNote("Check battery");
+  await editNote("Original note");
+  expect(screen.queryByRole("button", { name: "Save Changes" })).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "Back" }));
+  await screen.findByRole("heading", { name: "Audit History" });
+  expect(updateAuditNotes).not.toHaveBeenCalled();
 });
