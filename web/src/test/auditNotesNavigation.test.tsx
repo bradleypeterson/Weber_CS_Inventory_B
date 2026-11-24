@@ -146,3 +146,24 @@ it("leaves directly after the user restores the original note", async () => {
   await screen.findByRole("heading", { name: "Audit History" });
   expect(updateAuditNotes).not.toHaveBeenCalled();
 });
+
+it("waits for a pending save before allowing Back or another edit", async () => {
+  let finishSave!: (saved: boolean) => void;
+  vi.mocked(updateAuditNotes).mockImplementationOnce(() => new Promise(resolve => { finishSave = resolve; }));
+  mount();
+  await editNote("Battery replaced");
+  save();
+  const pending = await screen.findByRole<HTMLButtonElement>("button", { name: "Saving..." });
+  const back = screen.getByRole<HTMLButtonElement>("button", { name: "Back" });
+  expect(pending.disabled).toBe(true);
+  expect(back.disabled).toBe(true);
+  expect(screen.getByRole<HTMLButtonElement>("button", { name: "Edit note for LT-4" }).disabled).toBe(true);
+  fireEvent.click(back);
+  expect(screen.getByRole("heading", { name: "Audit Details" })).toBeTruthy();
+
+  await act(async () => finishSave(true));
+  await waitFor(() => expect(back.disabled).toBe(false));
+  fireEvent.click(back);
+  await screen.findByRole("heading", { name: "Audit History" });
+  expect(updateAuditNotes).toHaveBeenCalledTimes(1);
+});
