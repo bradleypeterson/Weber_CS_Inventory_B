@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { MemoryRouter, Route, Routes } from "react-router";
+import { Link, MemoryRouter, Route, Routes } from "react-router";
 import { afterAll, beforeAll, beforeEach, expect, it, vi } from "vitest";
 import { PermissionId } from "../../../@types/permissions";
 import { fetchAuditDetails, fetchAuditNotes, updateAuditNotes } from "../api/audit";
@@ -37,6 +37,7 @@ function mount() {
   render(
     <QueryClientProvider client={client}>
       <MemoryRouter initialEntries={["/audits/history/details?audit_id=7"]}>
+        <Link to="/audits/history/details?audit_id=8">Open audit 8</Link>
         <Routes>
           <Route path="/audits/history/details" element={<AuditDetailsDashboard />} />
           <Route path="/audits/history" element={<h1>Audit History</h1>} />
@@ -72,9 +73,9 @@ it("keeps the draft on Details and allows further editing", async () => {
   await editNote("Check battery");
   fireEvent.click(requestBack().getByRole("button", { name: "Keep editing" }));
   expect(screen.queryByRole("dialog")).toBeNull();
-  expect(screen.getByText("Check battery")).toBeTruthy();
+  expect(within(screen.getByRole("article")).getByText("Check battery")).toBeTruthy();
   await editNote("Battery replaced");
-  expect(screen.getByText("Battery replaced")).toBeTruthy();
+  expect(within(screen.getAllByRole("article")[0]).getByText("Battery replaced")).toBeTruthy();
   expect(updateAuditNotes).not.toHaveBeenCalled();
 });
 
@@ -98,7 +99,7 @@ it("keeps a failed save editable and leaves directly after a successful retry", 
   save();
   await screen.findByRole("alert");
   fireEvent.click(requestBack().getByRole("button", { name: "Keep editing" }));
-  expect(screen.getByText("Check battery")).toBeTruthy();
+  expect(within(screen.getByRole("article")).getByText("Check battery")).toBeTruthy();
   await editNote("Battery replaced");
   save();
   await waitFor(() => expect(screen.queryByRole("button", { name: /sav(e changes|ing)/i })).toBeNull());
@@ -128,7 +129,7 @@ it("keeps edited text across a refetch and submits only the edited tag", async (
   ];
   vi.mocked(fetchAuditNotes).mockResolvedValue(refreshed);
   await act(() => client.refetchQueries(["auditNotes", "7"]));
-  expect(screen.getByText("Battery replaced")).toBeTruthy();
+  expect(within(screen.getAllByRole("article")[0]).getByText("Battery replaced")).toBeTruthy();
   expect(screen.getByText("Updated by a coworker")).toBeTruthy();
   save();
   await waitFor(() => expect(client.getQueryData(["auditNotes", "7"])).toEqual([
@@ -166,4 +167,18 @@ it("waits for a pending save before allowing Back or another edit", async () => 
   fireEvent.click(back);
   await screen.findByRole("heading", { name: "Audit History" });
   expect(updateAuditNotes).toHaveBeenCalledTimes(1);
+});
+
+it("opens another audit without carrying over the previous audit's draft", async () => {
+  vi.mocked(fetchAuditNotes).mockImplementation(async id => [
+    { tagNumber: "LT-4", note: id === "7" ? "Original note" : "Second audit note" }
+  ]);
+  mount();
+  await editNote("First audit draft");
+  fireEvent.click(screen.getByRole("link", { name: "Open audit 8" }));
+  await screen.findByText("Second audit note");
+  expect(screen.queryByRole("button", { name: "Save Changes" })).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "Back" }));
+  await screen.findByRole("heading", { name: "Audit History" });
+  expect(updateAuditNotes).not.toHaveBeenCalled();
 });
