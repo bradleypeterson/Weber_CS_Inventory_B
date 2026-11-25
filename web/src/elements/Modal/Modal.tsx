@@ -25,7 +25,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
   }
 
   return (
-    <dialog ref={dialogRef} className={styles.dialog} onClick={handleBackdropClick} onClose={onClose}>
+    <dialog aria-label={title} ref={dialogRef} className={styles.dialog} onClick={handleBackdropClick} onClose={onClose}>
       <div className={styles.content}>
         {title && <h2>{title}</h2>}
         {children}

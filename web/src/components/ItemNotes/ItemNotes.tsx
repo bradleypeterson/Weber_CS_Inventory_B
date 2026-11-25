@@ -17,11 +17,12 @@ type ItemNote = {
 type Props = {
   itemNotes: ItemNote[];
   equipmentItems: Equipment[];
+  editingDisabled?: boolean;
   onAdd?: (tagNumber: string, note: string) => void;
   onDelete?: (tagNumber: string) => void;
 };
 
-export function ItemNotes({ itemNotes, equipmentItems, onAdd, onDelete }: Props) {
+export function ItemNotes({ itemNotes, equipmentItems, editingDisabled, onAdd, onDelete }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingNote, setEditingNote] = useState<ItemNote | null>(null);
 
@@ -69,6 +70,8 @@ export function ItemNotes({ itemNotes, equipmentItems, onAdd, onDelete }: Props)
                   {itemDescription}
                   <IconButton 
                     icon={<Pencil size={16} />} 
+                    disabled={editingDisabled}
+                    aria-label={`Edit note for ${note.tagNumber}`}
                     variant="secondary" 
                     onClick={() => handleEditNote(note)} 
                   />
@@ -91,4 +94,4 @@ export function ItemNotes({ itemNotes, equipmentItems, onAdd, onDelete }: Props)
       />
     </>
   );
-} 
+}
